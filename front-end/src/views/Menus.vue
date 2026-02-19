@@ -102,13 +102,12 @@ type Menu = {
 }
 
 // Mock data — replace by API call later
-const placeholder = 'https://via.placeholder.com/320x180?text=Menu'
 const menus = ref<Menu[]>([
-  { id: 1, title: 'Menu Découverte', description: 'Entrée + Plat + Dessert', minPeople: 1, price: 15, theme: 'Traditionnel', diet: 'Omnivore', image: '/images/KEBAB.jpg' },
-  { id: 2, title: 'Menu Végétarien', description: 'Sélection végétarienne raffinée', minPeople: 2, price: 18, theme: 'Végétarien', diet: 'Végétarien', image: placeholder + '+Végétarien' },
-  { id: 3, title: 'Menu Famille', description: 'Plats adaptés aux enfants', minPeople: 4, price: 12, theme: 'Famille', diet: 'Omnivore', image: placeholder + '+Famille' },
-  { id: 4, title: 'Menu Santé', description: 'Options légères et équilibrées', minPeople: 1, price: 20, theme: 'Santé', diet: 'Sans Gluten', image: placeholder + '+Santé' },
-  { id: 5, title: 'Menu Prestige', description: 'Menu gastronomique complet', minPeople: 2, price: 30, theme: 'Gastronomique', diet: 'Omnivore', image: placeholder + '+Prestige' }
+  { id: 1, title: 'Menu Découverte', description: 'Entrée + Plat + Dessert', minPeople: 1, price: 15, theme: 'Traditionnel', diet: 'Omnivore', image: '/src/assets/img/couscous.jpg' },
+  { id: 2, title: 'Menu Végétarien', description: 'Sélection végétarienne raffinée', minPeople: 2, price: 18, theme: 'Végétarien', diet: 'Végétarien', image: '/src/assets/img/couscous.jpg' },
+  { id: 3, title: 'Menu Famille', description: 'Plats adaptés aux enfants', minPeople: 4, price: 12, theme: 'Famille', diet: 'Omnivore', image: '/src/assets/img/couscous.jpg' },
+  { id: 4, title: 'Menu Santé', description: 'Options légères et équilibrées', minPeople: 1, price: 20, theme: 'Santé', diet: 'Sans Gluten', image: '/src/assets/img/couscous.jpg' },
+  { id: 5, title: 'Menu Prestige', description: 'Menu gastronomique complet', minPeople: 2, price: 30, theme: 'Gastronomique', diet: 'Omnivore', image: '/src/assets/img/couscous.jpg' }
 ])
 
 // Filter state
