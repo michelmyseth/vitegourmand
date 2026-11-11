@@ -3,18 +3,18 @@
     <Header />
     <section class="presentation">
       <div class="container">
-        <h3>Professionnalisme de l'équipe</h3>
-        <p>Notre équipe est composée de professionnels formés aux bonnes pratiques de sécurité routière et au service client.</p>
+        <h2>Vite &amp; Gourmand</h2>
+        <p>Depuis 25 ans à Bordeaux, Julie et José imaginent et préparent des menus pour tous vos événements : repas de Noël, Pâques, fêtes de famille ou réceptions. Nos menus évoluent au fil des saisons.</p>
 
-        <h3>Avis clients (validés)</h3>
+        <h3>Professionnalisme de l'équipe</h3>
+        <p>Notre équipe met son savoir-faire au service de chaque prestation : produits frais, respect des règles d'hygiène et de conservation, livraison soignée et écoute de vos besoins.</p>
+
+        <h3>Avis clients</h3>
         <ul class="reviews-list">
           <li v-for="r in reviews.filter(x => x.validated)" :key="r.id" class="review-item">
             <strong>{{ r.author }}:</strong> {{ r.text }}
           </li>
         </ul>
-
-        <h3>À propos du projet</h3>
-        <p>Ce projet vise à proposer une application simple et efficace pour organiser des trajets en covoiturage, avec une attention particulière portée à la conformité RGPD et à la sécurité des connexions.</p>
       </div>
     </section>
     <Footer />
@@ -22,28 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
-import covoitImg from '@/assets/img/Covoit.jpg'
 
-const filters = ref({ from: '', to: '', date: '', electric: false, lowPrice: false, fast: false, minRating: 0 })
-
-const trips = ref([
-  { id:1, driver:{name:'Julien',avatar:'...'}, from:'Lyon', to:'Grenoble', date:'2024-09-02', duration:'1h20', seats:3, price:12, rating:4.8, type:'Électrique', carImage:'...' },
-  { id:2, driver:{name:'Amélie',avatar:'...'}, from:'Lyon', to:'Chambéry', date:'2024-09-02', duration:'1h40', seats:2, price:9, rating:4.5, type:'Hybride', carImage:'...' }
-])
-
-const filteredTrips = computed(() => trips.value)
-
+// Mock data — replace by API call later (approved reviews only)
 const reviews = [
   { id:1, author:'Alice', text:'Super service !', validated:true },
   { id:2, author:'Bob', text:'Très bon repas', validated:true },
   { id:3, author:'Eve', text:'En attente modération', validated:false }
 ]
-
-function onSearch(){ console.log(filters.value) }
-function book(trip){ alert(`Réservé: ${trip.from} → ${trip.to}`) }
 </script>
 
 <style>
@@ -53,54 +40,6 @@ function book(trip){ alert(`Réservé: ${trip.from} → ${trip.to}`) }
   min-height: 100vh;
   justify-content: space-between;
   gap: 2rem;
-}
-
-.hero-inner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.main-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.main-content-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0; /* ou 24px si tu veux un petit espace */
-  width: 100%;
-}
-
-.side-image {
-  flex: 1;
-  max-width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.side-image img {
-  max-width: 80%; /* ou 100% selon le rendu souhaité */
-  height: auto;
-  border-radius: 12px;
-}
-
-.infopanel-center {
-  flex: 1;
-  max-width: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 40%;
-  background: #f5f5f5;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .presentation {

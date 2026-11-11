@@ -1,12 +1,12 @@
-# EcoRide - Front-End
+# Vite & Gourmand — Front-end
 
-EcoRide est une application web dédiée à la promotion de la mobilité durable en facilitant le covoiturage entre utilisateurs. Ce dépôt contient le code source du front-end développé avec Vue.js, Vite et npm.
+Front-end de l'application Vite & Gourmand (traiteur à Bordeaux), développé avec Vue.js, Vite et npm.
 
 ## 🚀 Démarrage
 
 ### Prérequis
 
-- [Node.js](https://nodejs.org/) (version 16 ou supérieure)
+- [Node.js](https://nodejs.org/) (version 20.19 ou supérieure)
 - [npm](https://www.npmjs.com/) (généralement installé avec Node.js)
 
 ### Installation
