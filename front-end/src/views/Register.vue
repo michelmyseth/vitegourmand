@@ -41,7 +41,7 @@
 
         <p class="login-link">
           Déjà inscrit ?
-          <router-link to="/login">Connectez-vous</router-link>
+          <router-link :to="{ path: '/login', query: route.query }">Connectez-vous</router-link>
         </p>
       </div>
     </main>
@@ -52,11 +52,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 
+const route = useRoute()
 const router = useRouter()
 
 const username = ref('')
@@ -93,7 +94,7 @@ async function register() {
       "Inscription réussie ! Vous allez être redirigé vers la page de connexion..."
 
     setTimeout(() => {
-      router.push('/login')
+      router.push({ path: '/login', query: route.query })
     }, 3000)
   } catch (err) {
     errorMessage.value = 'Erreur réseau'

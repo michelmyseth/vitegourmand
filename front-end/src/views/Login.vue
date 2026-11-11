@@ -30,7 +30,7 @@
 
         <p class="register-link">
           Nouvelle inscription ?
-          <router-link to="/register">Cliquez ici</router-link>
+          <router-link :to="{ path: '/register', query: route.query }">Cliquez ici</router-link>
         </p>
       </div>
     </main>
@@ -41,12 +41,20 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 
+const route = useRoute()
 const router = useRouter()
+
+// Only allow internal paths to avoid open redirects
+const redirect = typeof route.query.redirect === 'string'
+  && route.query.redirect.startsWith('/')
+  && !route.query.redirect.startsWith('//')
+  ? route.query.redirect
+  : '/profile'
 
 const email = ref<string>('')
 const password = ref<string>('')
@@ -73,7 +81,7 @@ async function login() {
       return
     }
 
-    router.push('/profile')
+    router.push(redirect)
   } catch (err) {
     errorMessage.value = 'Erreur réseau'
   }
