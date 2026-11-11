@@ -1,17 +1,55 @@
 <template>
   <header class="navbar">
-    <div class="navbar-title">Vite &amp; Gourmand</div>
-    <nav class="navbar-links">
-      <a href="/">Accueil</a>
-      <a href="/menus">Menus</a>
-      <a href="/contact">Contact</a>
-      <a href="/login">Connexion</a>
+    <router-link to="/" class="navbar-title">Vite &amp; Gourmand</router-link>
+
+    <button
+      class="burger"
+      type="button"
+      aria-controls="main-nav"
+      :aria-expanded="open"
+      :aria-label="open ? 'Fermer le menu' : 'Ouvrir le menu'"
+      @click="open = !open"
+    >
+      <span aria-hidden="true">{{ open ? '✕' : '☰' }}</span>
+    </button>
+
+    <nav id="main-nav" class="navbar-links" :class="{ open }" aria-label="Navigation principale">
+      <router-link to="/">Accueil</router-link>
+      <router-link to="/menus">Menus</router-link>
+      <router-link to="/contact">Contact</router-link>
+      <template v-if="user">
+        <router-link to="/profile">Mon espace</router-link>
+        <button type="button" class="navbar-btn" @click="onLogout">Déconnexion</button>
+      </template>
+      <router-link v-else to="/login" class="navbar-btn">Connexion</router-link>
     </nav>
   </header>
 </template>
 
+<script setup>
+import { ref, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
+
+const { user, fetchUser, logout } = useAuth()
+const route = useRoute()
+const router = useRouter()
+const open = ref(false)
+
+onMounted(fetchUser)
+
+// Close the mobile menu after navigating
+watch(() => route.fullPath, () => { open.value = false })
+
+async function onLogout() {
+  await logout()
+  router.push('/')
+}
+</script>
+
 <style>
 .navbar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -38,14 +76,82 @@
   font-size: 1rem;
 }
 
-.navbar-btn {
-  background: #4caf50;
+.navbar-links a.router-link-exact-active {
+  color: #2e7d32;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.navbar-links .navbar-btn {
+  background: #2e7d32;
   color: #fff;
   border: none;
   padding: 8px 20px;
   border-radius: 6px;
   font-weight: bold;
-  margin-left: 16px;
+  font-size: 1rem;
   cursor: pointer;
+}
+
+.navbar-links .navbar-btn:hover {
+  background: #1b5e20;
+}
+
+.navbar a:focus-visible,
+.navbar button:focus-visible {
+  outline: 3px solid #1565c0;
+  outline-offset: 2px;
+}
+
+.burger {
+  display: none;
+  background: none;
+  color: #222;
+  font-size: 1.6rem;
+  padding: 4px 10px;
+}
+
+.burger:hover {
+  background: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 16px;
+  }
+
+  .navbar-title {
+    font-size: 1.5rem;
+  }
+
+  .burger {
+    display: block;
+  }
+
+  .navbar-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  }
+
+  .navbar-links.open {
+    display: flex;
+  }
+
+  .navbar-links a,
+  .navbar-links .navbar-btn {
+    padding: 14px 16px;
+    border-top: 1px solid #eee;
+    border-radius: 0;
+    text-align: left;
+  }
 }
 </style>
