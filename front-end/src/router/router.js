@@ -5,6 +5,10 @@ import Contact from '@/views/Contact.vue'
 import Login from '@/views/Login.vue'
 import Profile from '@/views/Profile.vue'
 import Register from '@/views/Register.vue'
+import Legal from '@/views/Legal.vue'
+import Terms from '@/views/Terms.vue'
+import { useAuth } from '@/composables/useAuth'
+
 const routes = [
   {
     path: '/',
@@ -36,34 +40,31 @@ const routes = [
     path: "/register",
     name: "Register",
     component: Register
+  },
+  {
+    path: '/legal',
+    name: 'Legal',
+    component: Legal
+  },
+  {
+    path: '/terms',
+    name: 'Terms',
+    component: Terms
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior: () => ({ top: 0 })
 })
 
-router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth) {
-    try {
-      const res = await fetch('http://localhost:3000/api/auth/profile', {
-        method: 'GET',
-        credentials: 'include'
-      })
+router.beforeEach(async (to) => {
+  if (!to.meta.requiresAuth) return true
 
-      if (res.status === 401) {
-        return next('/login')
-      }
-
-      next()
-    } catch (err) {
-      console.error(err)
-      next('/login')
-    }
-  } else {
-    next()
-  }
+  const { fetchUser } = useAuth()
+  const user = await fetchUser()
+  return user ? true : '/login'
 })
 
 
