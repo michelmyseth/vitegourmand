@@ -1,0 +1,84 @@
+Issue Id,Parent,Issue Type,Summary,Description,Priority,Labels
+1,,Epic,Setup & project management,"Set up the work environment, Git repository and project management tool.",Highest,setup
+2,,Epic,Design (mockups & style guide & DB),"Requirements analysis, wireframes, mockups, style guide, data model and UML diagrams.",Highest,design
+3,,Epic,Database & back-end foundation,"SQL and NoSQL databases, API, back-end architecture.",Highest,backend
+4,,Epic,Authentication & accounts,"Sign-up, login, forgot password, roles.",Highest,auth
+5,,Epic,Public pages & layout,"Header, footer, home page, contact, legal notice, terms of sale.",High,frontend
+6,,Epic,Menu catalog,"Menu list, dynamic filters, menu detail page.",Highest,menus
+7,,Epic,Menu ordering,"Order form, price calculation, confirmation.",Highest,orders
+8,,Epic,User area,"Order tracking, editing and cancellation, profile, reviews.",High,user
+9,,Epic,Employee area,"Management of menus/dishes/opening hours, orders and reviews.",High,employee
+10,,Epic,Admin area,"Employee account management, NoSQL statistics, revenue.",High,admin
+11,,Epic,Transactional emails,"All automatic emails sent by the application.",High,emails
+12,,Epic,Security & GDPR & accessibility (RGAA),"Security hardening, GDPR compliance and RGAA accessibility.",Highest,security
+13,,Epic,Deployment,"Put the application online (front-end, back-end, databases).",Highest,deployment
+14,,Epic,Documentation & deliverables,"README, manuals and PDF documents required by the ECF.",Highest,docs
+101,1,Story,Create the Jira board and backlog,"Create the project, import the tickets, define the columns (To Do / In Progress / Review / Done) and the sprints. Make the link accessible to the jury.",Highest,setup
+102,1,Story,Initialize the public GitHub repository and Git workflow,"Public repository. Branches main + develop. One feature/* branch per feature created from develop; merge into develop after testing; merge develop into main after validation. Add .gitignore (node_modules, .env).",Highest,setup
+103,1,Story,Configure the development environment,"Install and configure the front-end (Vite/Vue), back-end, ESLint/Prettier, environment variables (.env.example), local databases (SQL + MongoDB).",High,setup
+201,2,Story,Requirements analysis and technology choices,"List features per role (visitor, user, employee, admin) and justify the technology choices (front-end, back-end, SQL, NoSQL, hosting).",Highest,design
+202,2,Story,Create wireframes (3 desktop + 3 mobile),"Wireframes of the key pages: home, menu list, menu detail / order. Desktop and mobile versions.",High,design
+203,2,Story,Create mockups (3 desktop + 3 mobile),"High-fidelity mockups matching the wireframes, with the style guide applied.",High,design
+204,2,Story,Define the style guide,"Color palette (RGAA-compliant contrast), fonts, logo. PDF export including the mockups.",High,design
+205,2,Story,Design the data model (MCD / class diagram),"Based on appendix 1: user, role, menu, dish, allergen, theme, diet, order, status history, review, opening hours. Many-to-many menu <-> dish relation.",Highest,design
+206,2,Story,Create the use case diagram,"Actors: visitor, user, employee, administrator.",Medium,design
+207,2,Story,Create the sequence diagrams,"At least: sign-up, login, placing an order, changing an order status.",Medium,design
+301,3,Story,Write the SQL database creation script,".sql file creating the tables (not only migrations/fixtures) with primary/foreign keys and constraints.",Highest,database
+302,3,Story,Write the SQL seed data script,".sql insert file: roles, José's admin account, employee, user, menus, dishes, allergens, themes, diets, opening hours, reviews.",Highest,database
+303,3,Story,Set up the NoSQL database (MongoDB),"Collection storing order statistics per menu, updated on each order (and revenue).",High,database
+304,3,Story,Set up the back-end API architecture,"Project structure (routes, controllers, services, data access), SQL connection using prepared statements, centralized error handling.",Highest,backend
+305,3,Story,Authentication and role middleware,"Token/session verification and role-based access control (user, employee, admin) on every protected route.",Highest,backend
+401,4,Story,User sign-up,"Fields: last name, first name, mobile phone, email, postal address, password. Front + back validation of the password: min 10 characters, 1 uppercase, 1 lowercase, 1 digit, 1 special character. 'user' role assigned automatically. Password hashed (bcrypt/argon2). Welcome email sent.",Highest,auth
+402,4,Story,Login,"Login with email + password. Generic error message. Disabled account = login refused. Redirect according to role.",Highest,auth
+403,4,Story,Forgot password / reset,"Email form -> sends a link with a unique, expiring token. Page to set the new password (same complexity rules).",High,auth
+404,4,Story,Logout,"Logout button, invalidate the session/token on client and server.",High,auth
+405,4,Task,Create José's administrator account,"Admin account created only through the SQL script. No route allows creating an administrator account.",Highest,auth
+501,5,Story,Header / navigation menu,"Links: Home, Menus, Contact, Login (or My account / Logout when logged in). Responsive (burger menu on mobile).",Highest,frontend
+502,5,Story,Footer with opening hours and legal links,"Opening hours Monday to Sunday (loaded from the database), links to Legal notice and Terms of sale.",High,frontend
+503,5,Story,Home page,"Company presentation, highlight of the team's professionalism, carousel/list of approved customer reviews only.",Highest,frontend
+504,5,Story,Contact page,"Form: title, description, email. Validation. Email sent to the company. Confirmation message.",High,frontend
+505,5,Story,Legal notice and Terms of sale pages,"Legal notice and terms of sale content (including the 600 EUR fee for unreturned equipment, GDPR policy).",Medium,frontend
+601,6,Story,Menu list page,"List of menus (public): title, description, minimum number of people, price, 'View details' button.",Highest,menus
+602,6,Story,Dynamic menu filters,"Filters: max price, price range, theme, diet, minimum number of people. Results update without page reload (API call / fetch).",Highest,menus
+603,6,Story,Menu detail page,"Shows all info: title, image gallery, description, theme, diet, starters/mains/desserts with allergens, min number of people, price, remaining stock. Menu conditions clearly highlighted (visible box).",Highest,menus
+604,6,Story,Order button on menu detail,"Logged-in user -> redirected to the order page with the menu pre-filled. Visitor -> asked to log in or sign up, then redirected back to the order.",Highest,menus
+701,7,Story,Order form,"Customer info pre-filled (last name, first name, email, mobile phone). Event address, date, time and place. Menu pre-selected when coming from the detail page. Number of people >= menu minimum.",Highest,orders
+702,7,Story,Order price calculation,"Menu price based on number of people. 10% discount if number of people >= minimum + 5. Delivery: free in Bordeaux, otherwise 5 EUR + 0.59 EUR/km. Recalculated server-side.",Highest,orders
+703,7,Task,Delivery distance calculation,"Integrate a geocoding/distance API (e.g. OpenRouteService / API Adresse) to compute the km from Bordeaux.",High,orders
+704,7,Story,Price summary before confirmation,"Detailed breakdown: menu price, discount if any, delivery fee, total.",High,orders
+705,7,Story,Save the order and manage stock,"Create the order (initial status), decrement menu stock, refuse if out of stock, update MongoDB statistics, send confirmation email.",Highest,orders
+801,8,Story,List and detail of my orders,"The user sees all their orders with full details.",High,user
+802,8,Story,Edit / cancel an order,"Only allowed while the order is not 'accepted'. Everything editable except the menu. Server-side check.",High,user
+803,8,Story,Order tracking,"Once accepted: history of all statuses with date and time of change.",High,user
+804,8,Story,Edit my personal information,"Edit last name, first name, mobile phone, address, email (with validation).",Medium,user
+805,8,Story,Leave a review on a completed order,"Rating from 1 to 5 + comment, only on a 'completed' order and only once. Review pending moderation.",High,user
+901,9,Story,Menu CRUD,"Create / edit / delete a menu: title, image gallery (upload), description, theme, diet, dishes, min people, price, conditions, stock.",Highest,employee
+902,9,Story,Dish and allergen CRUD,"Create / edit / delete starters, mains, desserts with allergens. A dish can belong to several menus.",High,employee
+903,9,Story,Opening hours management,"Edit opening hours Monday to Sunday (displayed in the footer).",Medium,employee
+904,9,Story,Order list with filters,"Filter by status and by customer.",High,employee
+905,9,Story,Update order status,"Statuses: accepted, in preparation, out for delivery, delivered, awaiting equipment return, completed. Each change is logged (date/time).",Highest,employee
+906,9,Story,Order edit / cancellation by employee,"Must enter the contact method (phone / email) and the reason before any edit or cancellation.",High,employee
+907,9,Story,Review moderation,"Approve or reject reviews. Only approved reviews appear on the home page.",High,employee
+1001,10,Story,Create an employee account,"Form with email + password. Email sent to the employee WITHOUT the password. Creating an admin is impossible.",Highest,admin
+1002,10,Story,Disable an employee account,"Make an employee account unusable (login refused) without deleting it.",High,admin
+1003,10,Story,Access to employee features,"The admin inherits all employee area features.",High,admin
+1004,10,Story,Chart of orders per menu,"Comparison chart (e.g. Chart.js) fed by MongoDB data.",High,admin
+1005,10,Story,Revenue per menu,"Revenue calculation per menu with filters by menu and by period (start date / end date).",High,admin
+1101,11,Task,Configure the email service,"SMTP / transactional service (e.g. Brevo, Mailtrap in dev). HTML templates.",Highest,emails
+1102,11,Task,Account-related emails,"Welcome on sign-up, password reset link, employee account created (without password).",High,emails
+1103,11,Task,Order-related emails,"Order confirmation; 'awaiting equipment return' status (10 business days otherwise 600 EUR); 'completed' status (invitation to leave a review).",High,emails
+1104,11,Task,Contact email to the company,"Forward the contact form request (title, description, email) to the company.",Medium,emails
+1201,12,Task,Application security,"Password hashing, prepared statements (SQL injection), XSS escaping, CSRF protection, CORS, security headers (helmet), rate limiting on login, server-side input validation, HTTPS, secrets in .env.",Highest,security
+1202,12,Task,GDPR compliance,"Cookie banner if needed, consent at sign-up, privacy policy, data minimization, right to delete the account.",High,security
+1203,12,Task,RGAA accessibility,"Semantic tags, alt attributes, form labels, contrast, keyboard navigation, visible focus, ARIA. Audit (Lighthouse / WAVE) and fixes.",High,security
+1204,12,Task,Responsive / mobile,"Check every page on mobile, tablet and desktop.",High,frontend
+1301,13,Task,Deploy the SQL database and MongoDB,"Host the relational database and MongoDB (e.g. MongoDB Atlas). Run the SQL scripts.",Highest,deployment
+1302,13,Task,Deploy the back-end,"Put the API online (e.g. fly.io / Render / Heroku), production environment variables.",Highest,deployment
+1303,13,Task,Deploy the front-end,"Put the front-end online (e.g. Vercel / Netlify), configure the API URL.",Highest,deployment
+1304,13,Task,Production acceptance testing,"Test every user journey online with the demo accounts (visitor, user, employee, admin).",Highest,deployment
+1401,14,Task,README.md,"Local installation and run procedure (prerequisites, env variables, SQL import, commands).",Highest,docs
+1402,14,Task,User manual (PDF),"Application overview, journeys per role, test credentials (user, employee, admin).",High,docs
+1403,14,Task,Style guide (PDF),"Palette, fonts, export of the 3 wireframes + 3 mockups for desktop and mobile.",High,docs
+1404,14,Task,Project management documentation,"Method used (Kanban/Scrum), organization, tool, board screenshots.",Medium,docs
+1405,14,Task,Technical documentation,"Technology choices, environment setup, data model, use case and sequence diagrams, deployment documentation, security measures.",Highest,docs
+1406,14,Task,Fill in the exam copy,"Fill in the Word/Excel copy, rename it ECF_TPDeveloppeurWebEtWebMobile_copiearendre_NOM_Prenom, add the links (GitHub, deployed app, Jira).",Highest,docs

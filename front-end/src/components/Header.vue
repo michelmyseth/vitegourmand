@@ -1,6 +1,6 @@
 <template>
   <header class="navbar">
-    <div class="navbar-title">Vite&Goumand</div>
+    <div class="navbar-title">Vite &amp; Gourmand</div>
     <nav class="navbar-links">
       <a href="/">Accueil</a>
       <a href="/menus">Menus</a>
