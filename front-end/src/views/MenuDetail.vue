@@ -4,7 +4,8 @@
     <main class="menu-detail container">
       <router-link to="/menus" class="back-link">← Retour aux menus</router-link>
 
-      <p v-if="!menu" class="not-found">Ce menu n'existe pas.</p>
+      <p v-if="loading" class="not-found" aria-busy="true">Chargement du menu…</p>
+      <p v-else-if="!menu" class="not-found">{{ error || "Ce menu n'existe pas." }}</p>
 
       <article v-else>
         <h1>{{ menu.title }}</h1>
@@ -15,11 +16,11 @@
 
         <div class="top">
           <section class="gallery" aria-label="Galerie d'images">
-            <img :src="menu.images[current]" :alt="`${menu.title} — photo ${current + 1} sur ${menu.images.length}`" class="gallery-main" />
+            <img :src="imageUrl(menu.images[current]?.url)" :alt="menu.images[current]?.alt || `${menu.title} — photo ${current + 1} sur ${menu.images.length}`" class="gallery-main" />
             <div v-if="menu.images.length > 1" class="thumbs">
               <button
                 v-for="(img, i) in menu.images"
-                :key="i"
+                :key="img.id"
                 type="button"
                 class="thumb"
                 :class="{ active: i === current }"
@@ -27,7 +28,7 @@
                 :aria-pressed="i === current"
                 @click="current = i"
               >
-                <img :src="img" alt="" />
+                <img :src="imageUrl(img.url)" alt="" />
               </button>
             </div>
           </section>
@@ -36,7 +37,7 @@
             <p class="desc">{{ menu.description }}</p>
 
             <dl class="facts">
-              <div><dt>Prix</dt><dd>{{ menu.price }} € pour {{ menu.minPeople }} personnes</dd></div>
+              <div><dt>Prix</dt><dd>{{ euros(menu.price) }} pour {{ menu.minPeople }} personnes</dd></div>
               <div><dt>Minimum</dt><dd>{{ menu.minPeople }} personnes</dd></div>
               <div>
                 <dt>Disponibilité</dt>
@@ -74,7 +75,7 @@
             <div v-for="course in courses" :key="course.key" class="course">
               <h3>{{ course.label }}</h3>
               <ul>
-                <li v-for="dish in menu.dishes[course.key]" :key="dish.name">
+                <li v-for="dish in menu.dishes[course.key]" :key="dish.id">
                   <span class="dish-name">{{ dish.name }}</span>
                   <span class="allergens">
                     Allergènes : {{ dish.allergens.length ? dish.allergens.join(', ') : 'aucun' }}
@@ -95,21 +96,36 @@ import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
-import { getMenu } from '@/data/menus'
+import { api } from '@/services/http'
+import { imageUrl, euros } from '@/utils/format'
 import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
 const { fetchUser } = useAuth()
 
-const menu = computed(() => getMenu(route.params.id))
+const menu = ref(null)
+const loading = ref(true)
+const error = ref('')
 const current = ref(0)
 const askLogin = ref(false)
 
-watch(() => route.params.id, () => {
+async function load(id) {
+  loading.value = true
+  error.value = ''
   current.value = 0
   askLogin.value = false
-})
+  try {
+    menu.value = await api(`/api/menus/${encodeURIComponent(id)}`)
+  } catch (err) {
+    menu.value = null
+    error.value = err.status === 404 ? "Ce menu n'existe pas." : err.message
+  } finally {
+    loading.value = false
+  }
+}
+
+watch(() => route.params.id, load, { immediate: true })
 
 const courses = [
   { key: 'starters', label: 'Entrées' },

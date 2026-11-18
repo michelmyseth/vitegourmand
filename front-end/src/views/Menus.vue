@@ -7,52 +7,61 @@
 
         <div class="filters">
           <div class="filter-row">
-            <label>Prix maximum:
-              <input type="number" v-model.number="qMaxPrice" placeholder="ex: 100" />
+            <label>Prix maximum (€)
+              <input v-model.number="f.maxPrice" type="number" min="0" placeholder="ex : 100" />
             </label>
 
-            <label>Fourchette prix:
-              <input type="number" v-model.number="qMinPrice" placeholder="min" />
-              —
-              <input type="number" v-model.number="qMaxPriceRange" placeholder="max" />
-            </label>
+            <fieldset class="range">
+              <legend>Fourchette de prix (€)</legend>
+              <label><span class="sr-only">Prix minimum</span>
+                <input v-model.number="f.minPrice" type="number" min="0" placeholder="min" />
+              </label>
+              <span aria-hidden="true">—</span>
+              <label><span class="sr-only">Prix maximum de la fourchette</span>
+                <input v-model.number="f.rangeMax" type="number" min="0" placeholder="max" />
+              </label>
+            </fieldset>
 
-            <label>Thème:
-              <select v-model="qTheme">
+            <label>Thème
+              <select v-model="f.theme">
                 <option value="">Tous</option>
-                <option v-for="t in themes" :key="t" :value="t">{{ t }}</option>
+                <option v-for="t in themes" :key="t.id" :value="t.id">{{ t.label }}</option>
               </select>
             </label>
 
-            <label>Régime:
-              <select v-model="qDiet">
+            <label>Régime
+              <select v-model="f.diet">
                 <option value="">Tous</option>
-                <option v-for="d in diets" :key="d" :value="d">{{ d }}</option>
+                <option v-for="d in diets" :key="d.id" :value="d.id">{{ d.label }}</option>
               </select>
             </label>
 
-            <label>Nombre min:
-              <input type="number" v-model.number="qMinPeople" min="1" />
+            <label>Personnes minimum
+              <input v-model.number="f.minPeople" type="number" min="1" />
             </label>
 
             <div class="filter-actions">
-              <button @click="resetFilters">Réinitialiser</button>
+              <button type="button" @click="resetFilters">Réinitialiser</button>
             </div>
           </div>
         </div>
 
-        <div class="list">
-          <div v-if="filtered.length === 0" class="empty">Aucun menu trouvé.</div>
-          <article v-for="m in filtered" :key="m.id" class="card">
-            <img :src="m.images[0]" alt="" class="card-image"/>
+        <p v-if="error" class="alert alert-error" role="alert">{{ error }}</p>
+        <p class="sr-only" aria-live="polite">{{ loading ? 'Chargement des menus…' : `${menus.length} menu(s) trouvé(s)` }}</p>
+
+        <div class="list" :aria-busy="loading">
+          <div v-if="!loading && !error && menus.length === 0" class="empty">Aucun menu ne correspond à ces filtres.</div>
+          <article v-for="m in menus" :key="m.id" class="card">
+            <img :src="imageUrl(m.image)" alt="" class="card-image" />
             <div class="card-body">
               <h3>{{ m.title }}</h3>
               <p class="desc">{{ m.description }}</p>
               <div class="meta">
-                <div><strong>Personnes min.:</strong> {{ m.minPeople }}</div>
-                <div><strong>Prix:</strong> {{ m.price }} €</div>
-                <div><strong>Thème:</strong> {{ m.theme }}</div>
-                <div v-if="m.diet"><strong>Régime:</strong> {{ m.diet }}</div>
+                <div><strong>Personnes min. :</strong> {{ m.minPeople }}</div>
+                <div><strong>Prix :</strong> {{ euros(m.price) }}</div>
+                <div><strong>Thème :</strong> {{ m.theme }}</div>
+                <div><strong>Régime :</strong> {{ m.diet }}</div>
+                <div v-if="m.stock === 0" class="sold-out">Épuisé</div>
               </div>
               <div class="actions">
                 <router-link :to="`/menus/${m.id}`" class="detail-link">Voir le détail<span class="sr-only"> du {{ m.title }}</span></router-link>
@@ -67,48 +76,63 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
+<script setup>
+import { ref, reactive, watch, onMounted } from 'vue'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
+import { api } from '@/services/http'
+import { imageUrl, euros } from '@/utils/format'
 
-import { menus as menuData } from '@/data/menus'
+const menus = ref([])
+const themes = ref([])
+const diets = ref([])
+const loading = ref(true)
+const error = ref('')
 
-const menus = ref(menuData)
+const emptyFilters = { maxPrice: '', minPrice: '', rangeMax: '', theme: '', diet: '', minPeople: '' }
+const f = reactive({ ...emptyFilters })
 
-// Filter state
-const qMaxPrice = ref<number | null>(null)
-const qMinPrice = ref<number | null>(null)
-const qMaxPriceRange = ref<number | null>(null)
-const qTheme = ref<string>('')
-const qDiet = ref<string>('')
-const qMinPeople = ref<number | null>(null)
+// "Prix maximum" and the max of the range both cap the price: keep the lowest
+function maxPrice() {
+  const values = [f.maxPrice, f.rangeMax].filter((v) => v !== '' && v !== null)
+  return values.length ? Math.min(...values) : ''
+}
 
-const themes = computed(() => Array.from(new Set(menus.value.map(m => m.theme))))
-const diets = computed(() => Array.from(new Set(menus.value.map(m => m.diet || ''))).filter(Boolean))
+// Filtering is done by the API, without reloading the page (KAN-44)
+let requestId = 0
+async function load() {
+  const id = ++requestId
+  loading.value = true
+  error.value = ''
+  try {
+    const result = await api('/api/menus', {
+      query: { maxPrice: maxPrice(), minPrice: f.minPrice, theme: f.theme, diet: f.diet, minPeople: f.minPeople }
+    })
+    if (id === requestId) menus.value = result // ignore answers to older requests
+  } catch (err) {
+    if (id === requestId) error.value = err.message
+  } finally {
+    if (id === requestId) loading.value = false
+  }
+}
 
-// An emptied number input gives '' (not null) with v-model.number
-const isSet = (v: number | string | null) => v !== null && v !== ''
+let debounce
+watch(f, () => {
+  clearTimeout(debounce)
+  debounce = setTimeout(load, 300)
+})
 
-const filtered = computed(() => {
-  return menus.value.filter(m => {
-    if (isSet(qMaxPrice.value) && m.price > qMaxPrice.value!) return false
-    if (isSet(qMinPrice.value) && m.price < qMinPrice.value!) return false
-    if (isSet(qMaxPriceRange.value) && m.price > qMaxPriceRange.value!) return false
-    if (qTheme.value && m.theme !== qTheme.value) return false
-    if (qDiet.value && (m.diet || '') !== qDiet.value) return false
-    if (isSet(qMinPeople.value) && m.minPeople < qMinPeople.value!) return false
-    return true
-  })
+onMounted(async () => {
+  load()
+  try {
+    ;[themes.value, diets.value] = await Promise.all([api('/api/themes'), api('/api/diets')])
+  } catch {
+    // the filters stay usable without the lists
+  }
 })
 
 function resetFilters() {
-  qMaxPrice.value = null
-  qMinPrice.value = null
-  qMaxPriceRange.value = null
-  qTheme.value = ''
-  qDiet.value = ''
-  qMinPeople.value = null
+  Object.assign(f, emptyFilters)
 }
 </script>
 
@@ -155,6 +179,28 @@ section h2 {
   flex-direction: column;
   font-size: 13px;
   font-weight: 500;
+}
+
+.range {
+  border: none;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.range legend {
+  padding: 0;
+}
+
+.range input {
+  width: 80px;
+}
+
+.sold-out {
+  color: #b71c1c;
+  font-weight: 600;
 }
 
 .filter-row input, .filter-row select {
@@ -263,17 +309,6 @@ section h2 {
   outline-offset: 2px;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
 
 @media (max-width: 768px) {
   .card {
