@@ -28,4 +28,14 @@ async function findOpeningHours() {
   return rows;
 }
 
-module.exports = { findThemes, findDiets, findAllergens, findOpeningHours };
+async function updateOpeningHours(days, db) {
+  for (const d of days) {
+    await query(
+      `UPDATE opening_hours SET open_time = $2, close_time = $3, is_closed = $4 WHERE day_of_week = $1`,
+      [d.dayOfWeek, d.isClosed ? null : d.openTime, d.isClosed ? null : d.closeTime, d.isClosed],
+      db
+    );
+  }
+}
+
+module.exports = { findThemes, findDiets, findAllergens, findOpeningHours, updateOpeningHours };

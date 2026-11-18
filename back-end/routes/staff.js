@@ -2,6 +2,7 @@
 const express = require('express');
 const menus = require('../controllers/staffMenuController');
 const dishes = require('../controllers/staffDishController');
+const hours = require('../controllers/staffHoursController');
 const { requireAuth, requireEmployee } = require('../middlewares/auth');
 const { menuImageUpload } = require('../config/upload');
 
@@ -23,5 +24,8 @@ router.get('/dishes', dishes.list);
 router.post('/dishes', dishes.create);
 router.put('/dishes/:id', dishes.update);
 router.delete('/dishes/:id', dishes.remove);
+
+// Opening hours (KAN-59); read by everyone with GET /api/opening-hours
+router.put('/opening-hours', hours.update);
 
 module.exports = router;
