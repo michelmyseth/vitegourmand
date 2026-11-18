@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.use(requireAuth, requireRole('user'));
 
+router.get('/', orders.listMine);
 router.post('/', orders.create);
+router.get('/:id', orders.getMine);
 
 module.exports = router;

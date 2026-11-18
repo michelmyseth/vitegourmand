@@ -7,7 +7,7 @@ const { deliveryFor } = require('./geoService');
 const statsService = require('./statsService');
 const { mails } = require('./mailService');
 const { validator } = require('../utils/validate');
-const { badRequest, conflict } = require('../utils/httpError');
+const { badRequest, conflict, notFound } = require('../utils/httpError');
 
 /** Tomorrow, 'YYYY-MM-DD' (Paris time): earliest possible event date */
 function tomorrow() {
@@ -88,4 +88,18 @@ async function createOrder(user, body) {
   return order;
 }
 
-module.exports = { createOrder, readEventFields, quote, tomorrow };
+// ---------------------------------------------------------------
+// Customer area (KAN-52, KAN-54)
+// ---------------------------------------------------------------
+
+const listMyOrders = (user) => orderRepository.findByUser(user.id);
+
+/** An order of the customer, with its status history. 404 for someone else's order. */
+async function getMyOrder(user, orderId) {
+  const order = await orderRepository.findById(orderId);
+  if (!order || order.userId !== user.id) throw notFound('Commande introuvable.');
+  order.history = await orderRepository.findHistory(orderId);
+  return order;
+}
+
+module.exports = { createOrder, listMyOrders, getMyOrder, readEventFields, quote, tomorrow };
