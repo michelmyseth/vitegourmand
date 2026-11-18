@@ -96,8 +96,19 @@ async function findForOrder(id, db) {
   return rows[0] || null;
 }
 
+/** Same as findForOrder, without lock */
+async function findForOrderReadOnly(id, db) {
+  const { rows } = await query(
+    `SELECT menu_id AS id, title, min_people AS "minPeople", min_price AS price, stock, is_active AS "isActive"
+     FROM menu WHERE menu_id = $1`,
+    [id],
+    db
+  );
+  return rows[0] || null;
+}
+
 async function changeStock(id, delta, db) {
   await query('UPDATE menu SET stock = stock + $2, updated_at = now() WHERE menu_id = $1', [id, delta], db);
 }
 
-module.exports = { findAll, findById, findForOrder, changeStock, MENU_FIELDS, MENU_FROM };
+module.exports = { findAll, findById, findForOrder, findForOrderReadOnly, changeStock, MENU_FIELDS, MENU_FROM };
