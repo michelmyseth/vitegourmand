@@ -116,3 +116,21 @@ back-end/
 - **Validation côté serveur** : `utils/validate.js` (email, téléphone, mot de passe, dates…), même si le front-end valide aussi.
 
 Route de test : `GET /api/health` → `{ "status": "ok" }`.
+
+---
+
+## 🔐 Routes de l'API et droits d'accès
+
+Authentification par jeton JWT dans un cookie `httpOnly` (`SameSite=Strict`). Le rôle est relu en base à chaque requête.
+L'administrateur **hérite de toutes les fonctionnalités employé** (middleware `requireEmployee` = rôles `employee` + `admin`).
+
+| Préfixe | Accès | Routes |
+|---|---|---|
+| `/api/auth` | public | `POST register`, `POST login`, `POST logout`, `POST forgot-password`, `POST reset-password`, `GET me` |
+| `/api` | public | `GET menus` (filtres `maxPrice`, `minPrice`, `theme`, `diet`, `minPeople`), `GET menus/:id`, `GET themes`, `GET diets`, `GET allergens`, `GET opening-hours`, `GET reviews` |
+| `/api/orders` | utilisateur | `GET /`, `POST /`, `GET /:id`, `PUT /:id`, `POST /:id/cancel`, `POST /:id/review` |
+| `/api/users` | connecté | `PUT me` |
+| `/api/staff` | employé + admin | `orders` (liste filtrée, détail, `PUT /:id/status`, `PUT /:id`, `POST /:id/cancel`), `menus` (CRUD + images), `dishes` (CRUD), `PUT opening-hours`, `reviews` (modération) |
+| `/api/admin` | admin | `employees` (liste, création, `PUT /:id/active`), `GET stats` |
+
+Réponses d'erreur : `{ "error": "message", "details": { "champ": "message" } }` avec le code HTTP adapté (400, 401, 403, 404, 409, 503).
