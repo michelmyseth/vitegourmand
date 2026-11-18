@@ -2,24 +2,242 @@
   <div class="page-root">
     <Header />
     <main class="order container">
-      <h1>Commander</h1>
-      <p v-if="menu">Menu sélectionné : <strong>{{ menu.title }}</strong></p>
-      <p v-else>Aucun menu sélectionné. <router-link to="/menus">Choisir un menu</router-link></p>
-      <!-- Order form: KAN-47 / KAN-48 / KAN-50 -->
+      <h1>Commander un menu</h1>
+
+      <form class="order-form" novalidate @submit.prevent="submit">
+        <!-- Customer -->
+        <fieldset>
+          <legend>Vos coordonnées</legend>
+          <div class="grid">
+            <div class="field">
+              <label for="lastName">Nom</label>
+              <input id="lastName" v-model.trim="form.lastName" autocomplete="family-name" :aria-invalid="!!errors.lastName" aria-describedby="lastName-err" />
+              <p v-if="errors.lastName" id="lastName-err" class="err">{{ errors.lastName }}</p>
+            </div>
+            <div class="field">
+              <label for="firstName">Prénom</label>
+              <input id="firstName" v-model.trim="form.firstName" autocomplete="given-name" :aria-invalid="!!errors.firstName" aria-describedby="firstName-err" />
+              <p v-if="errors.firstName" id="firstName-err" class="err">{{ errors.firstName }}</p>
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" v-model.trim="form.email" type="email" autocomplete="email" :aria-invalid="!!errors.email" aria-describedby="email-err" />
+              <p v-if="errors.email" id="email-err" class="err">{{ errors.email }}</p>
+            </div>
+            <div class="field">
+              <label for="phone">Téléphone portable</label>
+              <input id="phone" v-model.trim="form.phone" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" :aria-invalid="!!errors.phone" aria-describedby="phone-err" />
+              <p v-if="errors.phone" id="phone-err" class="err">{{ errors.phone }}</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Menu -->
+        <fieldset>
+          <legend>Votre menu</legend>
+          <div class="grid">
+            <div class="field">
+              <label for="menu">Menu</label>
+              <select id="menu" v-model.number="form.menuId" :aria-invalid="!!errors.menuId" aria-describedby="menu-err">
+                <option :value="null" disabled>Choisir un menu</option>
+                <option v-for="m in menus" :key="m.id" :value="m.id" :disabled="m.stock === 0">
+                  {{ m.title }} — {{ m.price }} € pour {{ m.minPeople }} pers.{{ m.stock === 0 ? ' (épuisé)' : '' }}
+                </option>
+              </select>
+              <p v-if="errors.menuId" id="menu-err" class="err">{{ errors.menuId }}</p>
+            </div>
+            <div class="field">
+              <label for="people">Nombre de personnes</label>
+              <input id="people" v-model.number="form.people" type="number" inputmode="numeric" :min="menu?.minPeople || 1" step="1" :aria-invalid="!!errors.people" aria-describedby="people-help people-err" />
+              <p id="people-help" class="help">
+                <template v-if="menu">
+                  Minimum {{ menu.minPeople }} personnes.
+                  −10 % à partir de {{ menu.minPeople + 5 }} personnes.
+                </template>
+              </p>
+              <p v-if="errors.people" id="people-err" class="err">{{ errors.people }}</p>
+            </div>
+          </div>
+          <p v-if="menu" class="conditions"><strong>Conditions :</strong> {{ menu.conditions }}</p>
+        </fieldset>
+
+        <!-- Event -->
+        <fieldset>
+          <legend>Votre événement</legend>
+          <div class="field address">
+            <label for="address">Adresse de l'événement</label>
+            <input
+              id="address"
+              v-model="addressQuery"
+              autocomplete="off"
+              placeholder="Ex. 12 avenue de la Marne, Mérignac"
+              role="combobox"
+              aria-autocomplete="list"
+              :aria-expanded="suggestions.length > 0"
+              aria-controls="address-list"
+              :aria-invalid="!!errors.address"
+              aria-describedby="address-help address-err"
+              @input="onAddressInput"
+            />
+            <ul v-if="suggestions.length" id="address-list" role="listbox" class="suggestions">
+              <li v-for="s in suggestions" :key="s.label" role="option" :aria-selected="false">
+                <button type="button" @click="pickAddress(s)">{{ s.label }}</button>
+              </li>
+            </ul>
+            <p id="address-help" class="help" aria-live="polite">
+              <template v-if="distanceLoading">Calcul de la distance…</template>
+              <template v-else-if="delivery && delivery.inBordeaux">Livraison gratuite à Bordeaux.</template>
+              <template v-else-if="delivery">
+                {{ delivery.km }} km depuis Bordeaux{{ delivery.method === 'straight' ? ' (à vol d’oiseau)' : '' }}.
+              </template>
+              <template v-else>Choisissez une adresse dans la liste proposée.</template>
+            </p>
+            <p v-if="errors.address" id="address-err" class="err">{{ errors.address }}</p>
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label for="date">Date de la prestation</label>
+              <input id="date" v-model="form.date" type="date" :min="minDate" :aria-invalid="!!errors.date" aria-describedby="date-err" />
+              <p v-if="errors.date" id="date-err" class="err">{{ errors.date }}</p>
+            </div>
+            <div class="field">
+              <label for="time">Heure de livraison</label>
+              <input id="time" v-model="form.time" type="time" :aria-invalid="!!errors.time" aria-describedby="time-err" />
+              <p v-if="errors.time" id="time-err" class="err">{{ errors.time }}</p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="place">Précisions sur le lieu <span class="optional">(facultatif)</span></label>
+            <textarea id="place" v-model.trim="form.place" rows="2" maxlength="300" placeholder="Salle, étage, digicode, accès…"></textarea>
+          </div>
+        </fieldset>
+
+        <p v-if="price" class="total" aria-live="polite">
+          Total estimé : <strong>{{ formatEuros(price.totalCents) }}</strong>
+        </p>
+
+        <button type="submit" class="submit">Continuer</button>
+      </form>
     </main>
     <Footer />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
-import { getMenu } from '@/data/menus'
+import { menus, getMenu } from '@/data/menus'
+import { useAuth } from '@/composables/useAuth'
+import { computeOrderPrice, formatEuros } from '@/utils/pricing'
+import { searchAddress, deliveryDistance } from '@/services/geo'
 
 const route = useRoute()
-const menu = computed(() => getMenu(route.query.menu))
+const { user, fetchUser } = useAuth()
+
+const initialMenu = getMenu(route.query.menu)
+const form = reactive({
+  lastName: '',
+  firstName: '',
+  email: '',
+  phone: '',
+  menuId: initialMenu && initialMenu.stock > 0 ? initialMenu.id : null,
+  people: initialMenu?.minPeople ?? null,
+  date: '',
+  time: '',
+  place: ''
+})
+const errors = reactive({})
+
+const menu = computed(() => getMenu(form.menuId))
+
+// When the menu changes, never keep a number of people below its minimum
+watch(menu, (m) => {
+  if (m && (!Number.isInteger(form.people) || form.people < m.minPeople)) form.people = m.minPeople
+})
+
+// Pre-fill customer info from the logged-in account
+onMounted(async () => {
+  const u = user.value || (await fetchUser())
+  if (!u) return
+  form.lastName ||= u.lastName || ''
+  form.firstName ||= u.firstName || ''
+  form.email ||= u.email || ''
+  form.phone ||= u.phone || ''
+})
+
+// Delivery address: autocomplete + distance
+const addressQuery = ref('')
+const suggestions = ref([])
+const address = ref(null)
+const delivery = ref(null)
+const distanceLoading = ref(false)
+let debounce
+
+function onAddressInput() {
+  address.value = null
+  delivery.value = null
+  clearTimeout(debounce)
+  debounce = setTimeout(async () => {
+    try {
+      suggestions.value = await searchAddress(addressQuery.value)
+    } catch {
+      suggestions.value = []
+    }
+  }, 300)
+}
+
+async function pickAddress(s) {
+  address.value = s
+  addressQuery.value = s.label
+  suggestions.value = []
+  distanceLoading.value = true
+  delivery.value = await deliveryDistance(s)
+  distanceLoading.value = false
+}
+
+// Tomorrow at the earliest
+const minDate = (() => {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  return d.toISOString().slice(0, 10)
+})()
+
+const price = computed(() => {
+  if (!menu.value || !delivery.value) return null
+  if (!Number.isInteger(form.people) || form.people < menu.value.minPeople) return null
+  return computeOrderPrice(menu.value, form.people, delivery.value)
+})
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_RE = /^(?:\+33\s?|0)[67](?:[\s.-]?\d{2}){4}$/
+
+function validate() {
+  Object.keys(errors).forEach((k) => delete errors[k])
+  if (!form.lastName) errors.lastName = 'Le nom est obligatoire.'
+  if (!form.firstName) errors.firstName = 'Le prénom est obligatoire.'
+  if (!EMAIL_RE.test(form.email)) errors.email = 'Adresse email invalide.'
+  if (!PHONE_RE.test(form.phone)) errors.phone = 'Numéro de portable invalide (ex. 06 12 34 56 78).'
+  if (!menu.value) errors.menuId = 'Choisissez un menu.'
+  else if (menu.value.stock === 0) errors.menuId = 'Ce menu n’est plus disponible.'
+  if (menu.value && (!Number.isInteger(form.people) || form.people < menu.value.minPeople)) {
+    errors.people = `Le nombre de personnes doit être d’au moins ${menu.value.minPeople}.`
+  }
+  if (!address.value) errors.address = 'Choisissez une adresse dans la liste.'
+  if (!form.date || form.date < minDate) errors.date = 'Choisissez une date à partir de demain.'
+  if (!form.time) errors.time = 'L’heure est obligatoire.'
+  return Object.keys(errors).length === 0
+}
+
+function submit() {
+  if (!validate()) {
+    const first = document.querySelector('[aria-invalid="true"]')
+    first?.focus()
+    return
+  }
+  // Next step: price summary before confirmation (KAN-50)
+}
 </script>
 
 <style scoped>
@@ -31,11 +249,134 @@ const menu = computed(() => getMenu(route.query.menu))
 
 .order {
   flex: 1;
-  padding: 32px 0;
+  padding: 32px 0 48px;
+  max-width: 820px;
 }
 
-.order a {
-  color: #2e7d32;
-  text-decoration: underline;
+fieldset {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px 20px 8px;
+  margin-bottom: 20px;
+  background: #fff;
+}
+
+legend {
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0 6px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.optional {
+  font-weight: normal;
+  color: #616161;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #757575;
+  border-radius: 4px;
+  font: inherit;
+  background: #fff;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 3px solid #1565c0;
+  outline-offset: 2px;
+}
+
+[aria-invalid='true'] {
+  border-color: #c62828;
+}
+
+.err {
+  color: #c62828;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.help {
+  color: #555;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.conditions {
+  background: #fff3e0;
+  border-left: 6px solid #e65100;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+}
+
+.address {
+  position: relative;
+}
+
+.suggestions {
+  list-style: none;
+  border: 1px solid #757575;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  background: #fff;
+}
+
+.suggestions button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  color: #333;
+  border-radius: 0;
+  padding: 8px 10px;
+}
+
+.suggestions button:hover,
+.suggestions button:focus-visible {
+  background: #e8f5e9;
+}
+
+.total {
+  font-size: 1.15rem;
+  margin-bottom: 16px;
+}
+
+.submit {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: #2e7d32;
+}
+
+.submit:hover {
+  background: #1b5e20;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
