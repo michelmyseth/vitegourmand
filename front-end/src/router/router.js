@@ -7,6 +7,8 @@ import Profile from '@/views/Profile.vue'
 import Register from '@/views/Register.vue'
 import Legal from '@/views/Legal.vue'
 import Terms from '@/views/Terms.vue'
+import MenuDetail from '@/views/MenuDetail.vue'
+import Order from '@/views/Order.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const routes = [
@@ -21,6 +23,17 @@ const routes = [
     component: Menus
   },
     {
+    path: '/menus/:id',
+    name: 'MenuDetail',
+    component: MenuDetail
+  },
+  {
+    path: '/order',
+    name: 'Order',
+    component: Order,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/contact',
     name: 'Contact',
     component: Contact
@@ -64,7 +77,7 @@ router.beforeEach(async (to) => {
 
   const { fetchUser } = useAuth()
   const user = await fetchUser()
-  return user ? true : '/login'
+  return user ? true : { path: '/login', query: { redirect: to.fullPath } }
 })
 
 

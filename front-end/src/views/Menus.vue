@@ -8,7 +8,7 @@
         <div class="filters">
           <div class="filter-row">
             <label>Prix maximum:
-              <input type="number" v-model.number="qMaxPrice" placeholder="ex: 20" />
+              <input type="number" v-model.number="qMaxPrice" placeholder="ex: 100" />
             </label>
 
             <label>Fourchette prix:
@@ -44,41 +44,23 @@
         <div class="list">
           <div v-if="filtered.length === 0" class="empty">Aucun menu trouvé.</div>
           <article v-for="m in filtered" :key="m.id" class="card">
-            <img :src="m.image || placeholder" alt="image menu" class="card-image"/>
+            <img :src="m.images[0]" alt="" class="card-image"/>
             <div class="card-body">
               <h3>{{ m.title }}</h3>
               <p class="desc">{{ m.description }}</p>
               <div class="meta">
                 <div><strong>Personnes min.:</strong> {{ m.minPeople }}</div>
-                <div><strong>Prix:</strong> €{{ m.price }}</div>
+                <div><strong>Prix:</strong> {{ m.price }} €</div>
                 <div><strong>Thème:</strong> {{ m.theme }}</div>
                 <div v-if="m.diet"><strong>Régime:</strong> {{ m.diet }}</div>
               </div>
               <div class="actions">
-                <button @click="openDetails(m)">Voir détails</button>
-                <button @click="handleOrder(m)" style="margin-left:8px">Commander</button>
+                <router-link :to="`/menus/${m.id}`" class="detail-link">Voir le détail<span class="sr-only"> du {{ m.title }}</span></router-link>
               </div>
             </div>
           </article>
         </div>
 
-        <div v-if="detailMenu" class="modal" @click.self="closeDetails">
-          <div class="modal-body">
-            <img :src="detailMenu.image" alt="image menu" class="modal-image"/>
-            <h3>{{ detailMenu.title }}</h3>
-            <p>{{ detailMenu.description }}</p>
-            <ul>
-              <li>Personnes min.: {{ detailMenu.minPeople }}</li>
-              <li>Prix: €{{ detailMenu.price }}</li>
-              <li>Thème: {{ detailMenu.theme }}</li>
-              <li v-if="detailMenu.diet">Régime: {{ detailMenu.diet }}</li>
-            </ul>
-            <div class="modal-actions">
-              <button @click="closeDetails">Fermer</button>
-              <button @click="handleOrder(detailMenu)" style="margin-left:8px">Commander</button>
-            </div>
-          </div>
-        </div>
       </section>
     </main>
     <Footer />
@@ -90,25 +72,9 @@ import { ref, computed } from 'vue'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 
-type Menu = {
-  id: number
-  title: string
-  description: string
-  minPeople: number
-  price: number
-  theme: string
-  image?: string
-  diet?: string
-}
+import { menus as menuData } from '@/data/menus'
 
-// Mock data — replace by API call later
-const menus = ref<Menu[]>([
-  { id: 1, title: 'Menu Découverte', description: 'Entrée + Plat + Dessert', minPeople: 1, price: 15, theme: 'Traditionnel', diet: 'Omnivore', image: '/src/assets/img/couscous.jpg' },
-  { id: 2, title: 'Menu Végétarien', description: 'Sélection végétarienne raffinée', minPeople: 2, price: 18, theme: 'Végétarien', diet: 'Végétarien', image: '/src/assets/img/couscous.jpg' },
-  { id: 3, title: 'Menu Famille', description: 'Plats adaptés aux enfants', minPeople: 4, price: 12, theme: 'Famille', diet: 'Omnivore', image: '/src/assets/img/couscous.jpg' },
-  { id: 4, title: 'Menu Santé', description: 'Options légères et équilibrées', minPeople: 1, price: 20, theme: 'Santé', diet: 'Sans Gluten', image: '/src/assets/img/couscous.jpg' },
-  { id: 5, title: 'Menu Prestige', description: 'Menu gastronomique complet', minPeople: 2, price: 30, theme: 'Gastronomique', diet: 'Omnivore', image: '/src/assets/img/couscous.jpg' }
-])
+const menus = ref(menuData)
 
 // Filter state
 const qMaxPrice = ref<number | null>(null)
@@ -121,28 +87,20 @@ const qMinPeople = ref<number | null>(null)
 const themes = computed(() => Array.from(new Set(menus.value.map(m => m.theme))))
 const diets = computed(() => Array.from(new Set(menus.value.map(m => m.diet || ''))).filter(Boolean))
 
+// An emptied number input gives '' (not null) with v-model.number
+const isSet = (v: number | string | null) => v !== null && v !== ''
+
 const filtered = computed(() => {
   return menus.value.filter(m => {
-    if (qMaxPrice.value != null && m.price > qMaxPrice.value) return false
-    if (qMinPrice.value != null && qMaxPriceRange.value != null) {
-      if (m.price < qMinPrice.value || m.price > qMaxPriceRange.value) return false
-    }
+    if (isSet(qMaxPrice.value) && m.price > qMaxPrice.value!) return false
+    if (isSet(qMinPrice.value) && m.price < qMinPrice.value!) return false
+    if (isSet(qMaxPriceRange.value) && m.price > qMaxPriceRange.value!) return false
     if (qTheme.value && m.theme !== qTheme.value) return false
     if (qDiet.value && (m.diet || '') !== qDiet.value) return false
-    if (qMinPeople.value != null && m.minPeople < qMinPeople.value) return false
+    if (isSet(qMinPeople.value) && m.minPeople < qMinPeople.value!) return false
     return true
   })
 })
-
-// Modal details
-const detailMenu = ref<Menu | null>(null)
-function openDetails(m: Menu) { detailMenu.value = m }
-function closeDetails() { detailMenu.value = null }
-
-function handleOrder(m: Menu) {
-  alert(`Commande du menu "${m.title}" pour €${m.price}`)
-  // À remplacer par une vraie logique de commande/panier
-}
 
 function resetFilters() {
   qMaxPrice.value = null
@@ -287,74 +245,44 @@ section h2 {
   border-radius: 6px;
 }
 
-.modal-image {
-  width: 100%;
-  height: auto;
-  border-radius: 6px;
-  margin-bottom: 12px;
-}
-
-/* Modal */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 1000;
-}
-
-.modal-body {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 480px;
-  width: 100%;
-}
-
-.modal-body h3 {
-  margin: 12px 0 8px;
-  font-size: 1.3rem;
-}
-
-.modal-body p {
-  margin: 0 0 12px;
-  color: #555;
-}
-
-.modal-body ul {
-  list-style: none;
-  padding: 0;
-  margin: 12px 0;
-  font-size: 0.95rem;
-}
-
-.modal-body li {
-  padding: 4px 0;
-  color: #333;
-}
-
-.modal-actions {
-  margin-top: 16px;
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.modal-actions button {
+.detail-link {
+  display: inline-block;
   padding: 6px 12px;
   border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #333;
-  cursor: pointer;
+  background: #2e7d32;
+  color: #fff;
+  font-weight: 600;
 }
 
-.modal-actions button:last-child {
-  background: #4caf50;
-  color: #fff;
-  border-color: #4caf50;
+.detail-link:hover {
+  background: #1b5e20;
+}
+
+.detail-link:focus-visible {
+  outline: 3px solid #1565c0;
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+  }
+
+  .card-image {
+    width: 100%;
+    height: 160px;
+  }
 }
 </style>
