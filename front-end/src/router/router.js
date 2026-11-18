@@ -13,6 +13,7 @@ import ResetPassword from '@/views/ResetPassword.vue'
 import AccountLayout from '@/views/account/AccountLayout.vue'
 import AccountOrders from '@/views/account/AccountOrders.vue'
 import AccountOrderDetail from '@/views/account/AccountOrderDetail.vue'
+import AccountProfile from '@/views/account/AccountProfile.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -53,7 +54,8 @@ const routes = [
     meta: { requiresAuth: true, roles: ['user'] },
     children: [
       { path: '', name: 'Account', component: AccountOrders },
-      { path: 'orders/:id', name: 'AccountOrder', component: AccountOrderDetail }
+      { path: 'orders/:id', name: 'AccountOrder', component: AccountOrderDetail },
+      { path: 'profile', name: 'AccountProfile', component: AccountProfile }
     ]
   },
   { path: '/profile', redirect: '/account' },
