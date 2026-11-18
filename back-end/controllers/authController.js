@@ -7,9 +7,15 @@ async function register(req, res) {
   res.status(201).json({ user });
 }
 
+async function login(req, res) {
+  const user = await authService.login(req.body);
+  setAuthCookie(res, user);
+  res.json({ user });
+}
+
 /** Current user (null for a visitor) */
 function me(req, res) {
   res.json({ user: req.user });
 }
 
-module.exports = { register, me };
+module.exports = { register, login, me };

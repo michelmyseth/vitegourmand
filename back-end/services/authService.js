@@ -2,7 +2,7 @@
 const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/userRepository');
 const { validator } = require('../utils/validate');
-const { conflict } = require('../utils/httpError');
+const { conflict, unauthorized, forbidden } = require('../utils/httpError');
 const { mails } = require('./mailService');
 
 const BCRYPT_COST = 10;
@@ -45,4 +45,23 @@ async function register(body) {
   return user;
 }
 
-module.exports = { register, readProfileFields, hashPassword };
+// Compared when the email is unknown, so the answer takes the same time
+// whether the account exists or not (no account enumeration)
+const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing', BCRYPT_COST);
+const LOGIN_ERROR = 'Email ou mot de passe incorrect.';
+
+async function login(body) {
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  const password = typeof body.password === 'string' ? body.password : '';
+
+  const user = email ? await userRepository.findByEmailWithHash(email) : null;
+  const valid = await bcrypt.compare(password, user ? user.passwordHash : DUMMY_HASH);
+  // Same generic message for an unknown email and a wrong password
+  if (!user || !valid) throw unauthorized(LOGIN_ERROR);
+  if (!user.isActive) throw forbidden("Ce compte a été désactivé. Contactez l'administrateur.");
+
+  const { passwordHash, ...publicUser } = user;
+  return publicUser;
+}
+
+module.exports = { register, login, readProfileFields, hashPassword };
