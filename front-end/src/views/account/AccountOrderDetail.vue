@@ -24,6 +24,20 @@
             <OrderTimeline :history="order.history" />
           </div>
 
+          <!-- KAN-56: review of a completed order, once -->
+          <div v-if="order.review" class="panel">
+            <h3>Mon avis</h3>
+            <p class="rating" :aria-label="`${order.review.rating} sur 5`">
+              <span aria-hidden="true">{{ '★'.repeat(order.review.rating) }}{{ '☆'.repeat(5 - order.review.rating) }}</span>
+            </p>
+            <p>{{ order.review.comment }}</p>
+            <p class="help">{{ REVIEW_STATUS[order.review.status] }}</p>
+          </div>
+          <div v-else-if="order.status === 'completed'" class="panel">
+            <h3>Donnez votre avis</h3>
+            <ReviewForm :order-id="order.id" @sent="onReview" />
+          </div>
+
           <!-- KAN-53: edit / cancel while the order is not accepted -->
           <div v-if="order.status === 'pending'" class="panel">
             <h3>Modifier ou annuler</h3>
@@ -58,6 +72,7 @@ import StatusBadge from '@/components/StatusBadge.vue'
 import OrderDetails from '@/components/OrderDetails.vue'
 import OrderEditForm from '@/components/OrderEditForm.vue'
 import OrderTimeline from '@/components/OrderTimeline.vue'
+import ReviewForm from '@/components/ReviewForm.vue'
 import { api } from '@/services/http'
 
 const route = useRoute()
@@ -68,6 +83,17 @@ const message = ref('')
 const editing = ref(false)
 const cancelling = ref(false)
 const actionError = ref('')
+
+const REVIEW_STATUS = {
+  pending: 'En attente de validation par notre équipe.',
+  approved: 'Publié sur la page d’accueil. Merci !',
+  rejected: 'Non publié.'
+}
+
+function onReview(review) {
+  order.value.review = review
+  message.value = 'Merci pour votre avis ! Il sera publié après validation.'
+}
 
 async function onSaved() {
   editing.value = false
@@ -120,6 +146,11 @@ watch(() => route.params.id, load, { immediate: true })
   grid-template-columns: 3fr 2fr;
   gap: 20px;
   align-items: start;
+}
+
+.rating {
+  font-size: 1.4rem;
+  color: #b26a00;
 }
 
 .buttons {

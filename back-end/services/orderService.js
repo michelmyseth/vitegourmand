@@ -6,6 +6,7 @@ const { computeOrderPrice } = require('../utils/pricing');
 const { deliveryFor } = require('./geoService');
 const statsService = require('./statsService');
 const { mails } = require('./mailService');
+const reviewRepository = require('../repositories/reviewRepository');
 const { validator } = require('../utils/validate');
 const { badRequest, conflict, notFound } = require('../utils/httpError');
 
@@ -99,6 +100,7 @@ async function getMyOrder(user, orderId) {
   const order = await orderRepository.findById(orderId);
   if (!order || order.userId !== user.id) throw notFound('Commande introuvable.');
   order.history = await orderRepository.findHistory(orderId);
+  order.review = order.reviewId ? await reviewRepository.findByOrder(orderId) : null;
   return order;
 }
 
