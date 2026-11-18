@@ -39,6 +39,45 @@
               le client est prévenu par email (restitution sous 10 jours ouvrés, sinon 600 € de frais).
             </p>
           </div>
+
+          <!-- KAN-62: edit / cancel after contacting the customer -->
+          <div v-if="EDITABLE.includes(order.status)" class="panel">
+            <h3>Modifier ou annuler</h3>
+            <p class="help">Contactez d'abord le client par téléphone ou par email, puis indiquez le mode de contact et le motif.</p>
+
+            <OrderEditForm
+              v-if="mode === 'edit'"
+              :order="order"
+              :endpoint="`/api/staff/orders/${order.id}`"
+              with-contact
+              @saved="onEdited"
+              @cancel="mode = ''"
+            />
+
+            <form v-else-if="mode === 'cancel'" novalidate @submit.prevent="cancelOrder">
+              <p v-if="cancelError" class="alert alert-error" role="alert">{{ cancelError }}</p>
+              <fieldset class="field contact">
+                <legend class="label">Client contacté par</legend>
+                <label class="inline"><input v-model="cancelForm.contactMethod" type="radio" value="phone" /> Téléphone</label>
+                <label class="inline"><input v-model="cancelForm.contactMethod" type="radio" value="email" /> Email</label>
+                <p v-if="cancelErrors.contactMethod" class="err">{{ cancelErrors.contactMethod }}</p>
+              </fieldset>
+              <div class="field">
+                <label for="cancel-reason">Motif de l'annulation</label>
+                <textarea id="cancel-reason" v-model.trim="cancelForm.reason" rows="3" maxlength="500" :aria-invalid="!!cancelErrors.reason"></textarea>
+                <p v-if="cancelErrors.reason" class="err">{{ cancelErrors.reason }}</p>
+              </div>
+              <div class="buttons">
+                <button type="button" class="btn btn-secondary" @click="mode = ''">Retour</button>
+                <button type="submit" class="btn btn-danger" :disabled="changing">Confirmer l'annulation</button>
+              </div>
+            </form>
+
+            <div v-else class="buttons">
+              <button type="button" class="btn" @click="mode = 'edit'">Modifier la commande</button>
+              <button type="button" class="btn btn-danger" @click="openCancel">Annuler la commande</button>
+            </div>
+          </div>
         </div>
         <div class="panel">
           <h3>Historique</h3>
@@ -50,11 +89,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import StatusBadge from '@/components/StatusBadge.vue'
 import OrderDetails from '@/components/OrderDetails.vue'
 import OrderTimeline from '@/components/OrderTimeline.vue'
+import OrderEditForm from '@/components/OrderEditForm.vue'
 import { api } from '@/services/http'
 import { STATUS_LABELS } from '@/utils/format'
 
@@ -77,6 +117,44 @@ async function load() {
 }
 
 watch(() => route.params.id, load, { immediate: true })
+
+const EDITABLE = ['pending', 'accepted', 'preparing']
+const mode = ref('') // '' | 'edit' | 'cancel'
+const cancelForm = reactive({ contactMethod: '', reason: '' })
+const cancelErrors = reactive({})
+const cancelError = ref('')
+
+function onEdited(updated) {
+  order.value = { ...updated }
+  mode.value = ''
+  message.value = 'Commande modifiée. Le prix a été recalculé.'
+}
+
+function openCancel() {
+  Object.assign(cancelForm, { contactMethod: '', reason: '' })
+  Object.keys(cancelErrors).forEach((k) => delete cancelErrors[k])
+  cancelError.value = ''
+  mode.value = 'cancel'
+}
+
+async function cancelOrder() {
+  Object.keys(cancelErrors).forEach((k) => delete cancelErrors[k])
+  cancelError.value = ''
+  if (!cancelForm.contactMethod) cancelErrors.contactMethod = 'Indiquez comment le client a été contacté.'
+  if (!cancelForm.reason) cancelErrors.reason = 'Le motif est obligatoire.'
+  if (Object.keys(cancelErrors).length) return
+  changing.value = true
+  try {
+    order.value = await api(`/api/staff/orders/${order.value.id}/cancel`, { method: 'POST', body: { ...cancelForm } })
+    mode.value = ''
+    message.value = 'Commande annulée. Le menu a été remis en stock.'
+  } catch (err) {
+    cancelError.value = err.message
+    Object.assign(cancelErrors, err.details)
+  } finally {
+    changing.value = false
+  }
+}
 
 const changing = ref(false)
 const statusError = ref('')
@@ -103,6 +181,10 @@ async function changeStatus(status) {
   align-items: center;
   flex-wrap: wrap;
   margin-top: 16px;
+}
+
+fieldset.contact {
+  border: none;
 }
 
 .buttons {

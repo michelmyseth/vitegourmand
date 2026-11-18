@@ -3,6 +3,8 @@
 const orderRepository = require('../repositories/orderRepository');
 const reviewRepository = require('../repositories/reviewRepository');
 const { withTransaction } = require('../config/db');
+const orderService = require('./orderService');
+const { validator } = require('../utils/validate');
 const { mails } = require('./mailService');
 const { badRequest, notFound, conflict } = require('../utils/httpError');
 
@@ -73,4 +75,41 @@ async function changeStatus(actor, id, body) {
   return getOrder(order.id);
 }
 
-module.exports = { STATUSES, NEXT_STATUSES, listOrders, getOrder, changeStatus };
+// ---------------------------------------------------------------
+// KAN-62: before editing or cancelling, the employee must have contacted the
+// customer and enter the contact method (phone / email) and the reason
+// ---------------------------------------------------------------
+
+const EDITABLE = ['pending', 'accepted', 'preparing'];
+
+function readContact(body) {
+  const v = validator(body);
+  const log = {
+    contactMethod: v.oneOf('contactMethod', ['phone', 'email'], 'Indiquez comment le client a été contacté.'),
+    reason: v.required('reason', 'Le motif est obligatoire.', 500),
+  };
+  return { v, log };
+}
+
+function staffCheck(order) {
+  if (!order) throw notFound('Commande introuvable.');
+  if (!EDITABLE.includes(order.status)) {
+    throw conflict(`Une commande « ${LABELS[order.status]} » ne peut plus être modifiée ni annulée.`);
+  }
+}
+
+async function editOrder(actor, id, body) {
+  const { v, log } = readContact(body);
+  v.throwIfErrors();
+  await orderService.editOrder(id, body, actor, staffCheck, log);
+  return getOrder(id);
+}
+
+async function cancelOrder(actor, id, body) {
+  const { v, log } = readContact(body);
+  v.throwIfErrors();
+  await orderService.cancelOrder(id, actor, staffCheck, log);
+  return getOrder(id);
+}
+
+module.exports = { STATUSES, NEXT_STATUSES, listOrders, getOrder, changeStatus, editOrder, cancelOrder };

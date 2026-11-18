@@ -15,6 +15,8 @@ router.use(requireAuth, requireEmployee);
 router.get('/orders', orders.list); // ?status=&customer=
 router.get('/orders/:id', orders.detail);
 router.put('/orders/:id/status', orders.changeStatus); // KAN-61
+router.put('/orders/:id', orders.edit); // KAN-62, contactMethod + reason required
+router.post('/orders/:id/cancel', orders.cancel); // KAN-62, contactMethod + reason required
 
 // Menus (KAN-57)
 router.get('/menus', menus.list);
