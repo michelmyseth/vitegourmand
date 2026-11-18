@@ -18,6 +18,8 @@ import StaffLayout from '@/views/staff/StaffLayout.vue'
 import StaffMenus from '@/views/staff/StaffMenus.vue'
 import StaffDishes from '@/views/staff/StaffDishes.vue'
 import StaffHours from '@/views/staff/StaffHours.vue'
+import StaffOrders from '@/views/staff/StaffOrders.vue'
+import StaffOrderDetail from '@/views/staff/StaffOrderDetail.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -69,7 +71,9 @@ const routes = [
     component: StaffLayout,
     meta: { requiresAuth: true, roles: ['employee', 'admin'] },
     children: [
-      { path: '', redirect: '/employee/menus' },
+      { path: '', redirect: '/employee/orders' },
+      { path: 'orders', name: 'StaffOrders', component: StaffOrders },
+      { path: 'orders/:id', name: 'StaffOrder', component: StaffOrderDetail },
       { path: 'menus', name: 'StaffMenus', component: StaffMenus },
       { path: 'dishes', name: 'StaffDishes', component: StaffDishes },
       { path: 'hours', name: 'StaffHours', component: StaffHours }

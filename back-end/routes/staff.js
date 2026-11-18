@@ -3,12 +3,17 @@ const express = require('express');
 const menus = require('../controllers/staffMenuController');
 const dishes = require('../controllers/staffDishController');
 const hours = require('../controllers/staffHoursController');
+const orders = require('../controllers/staffOrderController');
 const { requireAuth, requireEmployee } = require('../middlewares/auth');
 const { menuImageUpload } = require('../config/upload');
 
 const router = express.Router();
 
 router.use(requireAuth, requireEmployee);
+
+// Orders (KAN-60)
+router.get('/orders', orders.list); // ?status=&customer=
+router.get('/orders/:id', orders.detail);
 
 // Menus (KAN-57)
 router.get('/menus', menus.list);
