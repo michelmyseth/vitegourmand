@@ -4,6 +4,9 @@ API de l'application Vite & Gourmand (traiteur à Bordeaux). Back-end en **Node.
 
 ---
 
+> 💡 Le plus simple est de lancer tout le projet (front, API, PostgreSQL, MongoDB) avec Docker Compose :
+> voir le [README principal](../README.md). Cette page décrit le lancement manuel du back-end.
+
 ## 🛠 Prérequis
 
 - [Node.js](https://nodejs.org/) (version 20 ou supérieure)
