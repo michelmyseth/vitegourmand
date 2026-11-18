@@ -44,14 +44,26 @@
                 <th scope="col">Employé</th>
                 <th scope="col">Email</th>
                 <th scope="col">Compte</th>
+                <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!employees.length"><td colspan="3">Aucun employé.</td></tr>
+              <tr v-if="!employees.length"><td colspan="4">Aucun employé.</td></tr>
               <tr v-for="e in employees" :key="e.id">
                 <td>{{ e.firstName }} {{ e.lastName }}</td>
                 <td>{{ e.email }}</td>
                 <td>{{ e.isActive ? 'Actif' : 'Désactivé' }}</td>
+                <td>
+                  <!-- KAN-65: the account is kept but can no longer be used -->
+                  <button
+                    type="button"
+                    class="btn btn-small"
+                    :class="{ 'btn-danger': e.isActive }"
+                    @click="toggle(e)"
+                  >
+                    {{ e.isActive ? 'Désactiver' : 'Réactiver' }}<span class="sr-only"> le compte de {{ e.firstName }} {{ e.lastName }}</span>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -85,6 +97,20 @@ async function load() {
   }
 }
 onMounted(load)
+
+async function toggle(e) {
+  const disable = e.isActive
+  if (disable && !window.confirm(`Désactiver le compte de ${e.firstName} ${e.lastName} ? Il ne pourra plus se connecter.`)) return
+  error.value = ''
+  message.value = ''
+  try {
+    await api(`/api/admin/employees/${e.id}/active`, { method: 'PUT', body: { isActive: !disable } })
+    message.value = disable ? 'Compte désactivé : la connexion est refusée.' : 'Compte réactivé.'
+    await load()
+  } catch (err) {
+    error.value = err.message
+  }
+}
 
 async function create() {
   Object.keys(errors).forEach((k) => delete errors[k])
