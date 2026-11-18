@@ -4,14 +4,20 @@
     <main class="order container">
       <h1>Commander un menu</h1>
 
-      <div v-if="step === 'done'" class="confirmed" role="status">
-        <h2>Merci, votre demande est prête !</h2>
+      <div v-if="step === 'done'" ref="doneEl" class="confirmed" role="status" tabindex="-1">
+        <h2>Merci, votre commande {{ saved.orderNumber }} est enregistrée !</h2>
         <p>
-          L'enregistrement de la commande sera branché sur l'API (KAN-51).
-          Vous recevrez alors un email de confirmation.
+          Total : <strong>{{ euros(saved.totalPrice) }}</strong>. Un email de confirmation vient de vous être envoyé.
+          Vous pouvez la modifier ou l'annuler tant qu'elle n'a pas été acceptée par notre équipe.
         </p>
-        <router-link to="/menus">Retour aux menus</router-link>
+        <p class="done-links">
+          <router-link :to="`/account/orders/${saved.id}`">Voir ma commande</router-link>
+          <router-link to="/menus">Retour aux menus</router-link>
+        </p>
       </div>
+
+      <p v-if="loadError" class="alert alert-error" role="alert">{{ loadError }}</p>
+      <p v-if="saveError" class="alert alert-error" role="alert">{{ saveError }}</p>
 
       <OrderSummary
         v-else-if="step === 'summary'"
@@ -20,6 +26,7 @@
         :address="address"
         :delivery="delivery"
         :price="price"
+        :loading="saving"
         @back="step = 'form'"
         @confirm="confirm"
       />
@@ -28,25 +35,26 @@
         <!-- Customer -->
         <fieldset>
           <legend>Vos coordonnées</legend>
+          <p class="help">Informations de votre compte. <router-link to="/account/profile" class="link">Les modifier</router-link></p>
           <div class="grid">
             <div class="field">
               <label for="lastName">Nom</label>
-              <input id="lastName" v-model.trim="form.lastName" autocomplete="family-name" :aria-invalid="!!errors.lastName" aria-describedby="lastName-err" />
+              <input id="lastName" v-model.trim="form.lastName" readonly autocomplete="family-name" :aria-invalid="!!errors.lastName" aria-describedby="lastName-err" />
               <p v-if="errors.lastName" id="lastName-err" class="err">{{ errors.lastName }}</p>
             </div>
             <div class="field">
               <label for="firstName">Prénom</label>
-              <input id="firstName" v-model.trim="form.firstName" autocomplete="given-name" :aria-invalid="!!errors.firstName" aria-describedby="firstName-err" />
+              <input id="firstName" v-model.trim="form.firstName" readonly autocomplete="given-name" :aria-invalid="!!errors.firstName" aria-describedby="firstName-err" />
               <p v-if="errors.firstName" id="firstName-err" class="err">{{ errors.firstName }}</p>
             </div>
             <div class="field">
               <label for="email">Email</label>
-              <input id="email" v-model.trim="form.email" type="email" autocomplete="email" :aria-invalid="!!errors.email" aria-describedby="email-err" />
+              <input id="email" v-model.trim="form.email" readonly type="email" autocomplete="email" :aria-invalid="!!errors.email" aria-describedby="email-err" />
               <p v-if="errors.email" id="email-err" class="err">{{ errors.email }}</p>
             </div>
             <div class="field">
               <label for="phone">Téléphone portable</label>
-              <input id="phone" v-model.trim="form.phone" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" :aria-invalid="!!errors.phone" aria-describedby="phone-err" />
+              <input id="phone" v-model.trim="form.phone" readonly type="tel" autocomplete="tel" placeholder="06 12 34 56 78" :aria-invalid="!!errors.phone" aria-describedby="phone-err" />
               <p v-if="errors.phone" id="phone-err" class="err">{{ errors.phone }}</p>
             </div>
           </div>
@@ -61,7 +69,7 @@
               <select id="menu" v-model.number="form.menuId" :aria-invalid="!!errors.menuId" aria-describedby="menu-err">
                 <option :value="null" disabled>Choisir un menu</option>
                 <option v-for="m in menus" :key="m.id" :value="m.id" :disabled="m.stock === 0">
-                  {{ m.title }} — {{ m.price }} € pour {{ m.minPeople }} pers.{{ m.stock === 0 ? ' (épuisé)' : '' }}
+                  {{ m.title }} — {{ euros(m.price) }} pour {{ m.minPeople }} pers.{{ m.stock === 0 ? ' (épuisé)' : '' }}
                 </option>
               </select>
               <p v-if="errors.menuId" id="menu-err" class="err">{{ errors.menuId }}</p>
@@ -146,10 +154,12 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { nextTick } from 'vue'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import OrderSummary from '@/components/OrderSummary.vue'
-import { menus, getMenu } from '@/data/menus'
+import { api } from '@/services/http'
+import { euros } from '@/utils/format'
 import { useAuth } from '@/composables/useAuth'
 import { computeOrderPrice, formatEuros } from '@/utils/pricing'
 import { searchAddress, deliveryDistance } from '@/services/geo'
@@ -157,14 +167,21 @@ import { searchAddress, deliveryDistance } from '@/services/geo'
 const route = useRoute()
 const { user, fetchUser } = useAuth()
 
-const initialMenu = getMenu(route.query.menu)
+const menus = ref([])
+const loadError = ref('')
+const saveError = ref('')
+const saving = ref(false)
+const saved = ref(null)
+const doneEl = ref(null)
+const getMenu = (id) => menus.value.find((m) => m.id === Number(id)) || null
+
 const form = reactive({
   lastName: '',
   firstName: '',
   email: '',
   phone: '',
-  menuId: initialMenu && initialMenu.stock > 0 ? initialMenu.id : null,
-  people: initialMenu?.minPeople ?? null,
+  menuId: null,
+  people: null,
   date: '',
   time: '',
   place: ''
@@ -177,6 +194,20 @@ const menu = computed(() => getMenu(form.menuId))
 // When the menu changes, never keep a number of people below its minimum
 watch(menu, (m) => {
   if (m && (!Number.isInteger(form.people) || form.people < m.minPeople)) form.people = m.minPeople
+})
+
+// Menus from the API; the menu chosen on the detail page is pre-selected (KAN-46)
+onMounted(async () => {
+  try {
+    menus.value = await api('/api/menus')
+    const initial = getMenu(route.query.menu)
+    if (initial && initial.stock > 0) {
+      form.menuId = initial.id
+      form.people = initial.minPeople
+    }
+  } catch (err) {
+    loadError.value = err.message
+  }
 })
 
 // Pre-fill customer info from the logged-in account
@@ -262,9 +293,37 @@ function submit() {
   window.scrollTo({ top: 0 })
 }
 
-function confirm() {
-  // TODO KAN-51: POST /api/orders (server recomputes the price and checks the stock)
-  step.value = 'done'
+// KAN-51: the server recomputes the distance and the price, and checks the stock
+async function confirm() {
+  saveError.value = ''
+  saving.value = true
+  try {
+    saved.value = await api('/api/orders', {
+      method: 'POST',
+      body: {
+        menuId: form.menuId,
+        people: form.people,
+        address: address.value.street,
+        postcode: address.value.postcode,
+        city: address.value.city,
+        date: form.date,
+        time: form.time,
+        place: form.place
+      }
+    })
+    step.value = 'done'
+    await nextTick()
+    doneEl.value?.focus()
+  } catch (err) {
+    saveError.value = err.message
+    Object.assign(errors, err.details)
+    step.value = 'form'
+    window.scrollTo({ top: 0 })
+    // Stock may have changed: reload the menus
+    menus.value = await api('/api/menus').catch(() => menus.value)
+  } finally {
+    saving.value = false
+  }
 }
 </script>
 
@@ -407,6 +466,20 @@ button:focus-visible {
   border-left: 6px solid #2e7d32;
   border-radius: 6px;
   padding: 20px;
+}
+
+.confirmed:focus {
+  outline: none;
+}
+
+.done-links {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+input[readonly] {
+  background: #f5f5f5;
 }
 
 .confirmed a {

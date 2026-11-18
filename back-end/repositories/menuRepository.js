@@ -84,4 +84,20 @@ async function findById(id, { includeInactive = false, forUpdate = false } = {},
   return menu;
 }
 
-module.exports = { findAll, findById, MENU_FIELDS, MENU_FROM };
+/** Locks the menu row (concurrent orders wait) and returns what an order needs */
+async function findForOrder(id, db) {
+  const { rows } = await query(
+    `SELECT menu_id AS id, title, min_people AS "minPeople", min_price AS price, stock,
+            is_active AS "isActive", theme_id AS "themeId"
+     FROM menu WHERE menu_id = $1 FOR UPDATE`,
+    [id],
+    db
+  );
+  return rows[0] || null;
+}
+
+async function changeStock(id, delta, db) {
+  await query('UPDATE menu SET stock = stock + $2, updated_at = now() WHERE menu_id = $1', [id, delta], db);
+}
+
+module.exports = { findAll, findById, findForOrder, changeStock, MENU_FIELDS, MENU_FROM };
