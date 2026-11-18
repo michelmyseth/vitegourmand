@@ -18,6 +18,12 @@
         </div>
 
         <div class="side">
+          <!-- KAN-54: tracking, every status with its date and time -->
+          <div class="panel">
+            <h3>Suivi de la commande</h3>
+            <OrderTimeline :history="order.history" />
+          </div>
+
           <!-- KAN-53: edit / cancel while the order is not accepted -->
           <div v-if="order.status === 'pending'" class="panel">
             <h3>Modifier ou annuler</h3>
@@ -51,6 +57,7 @@ import { useRoute } from 'vue-router'
 import StatusBadge from '@/components/StatusBadge.vue'
 import OrderDetails from '@/components/OrderDetails.vue'
 import OrderEditForm from '@/components/OrderEditForm.vue'
+import OrderTimeline from '@/components/OrderTimeline.vue'
 import { api } from '@/services/http'
 
 const route = useRoute()
