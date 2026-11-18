@@ -163,7 +163,7 @@ async function remove(d) {
 }
 
 .allergens {
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 10px 14px;
   display: grid;

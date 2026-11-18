@@ -205,7 +205,7 @@ section h2 {
 
 .filter-row input, .filter-row select {
   padding: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   margin-top: 4px;
 }
@@ -218,9 +218,9 @@ section h2 {
 .filter-actions button {
   padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   background: #fff;
-  color: #333;
+  color: var(--color-text);
   cursor: pointer;
 }
 
@@ -232,7 +232,7 @@ section h2 {
 }
 
 .card {
-  border: 1px solid #eee;
+  border: 1px solid var(--color-line);
   padding: 12px;
   border-radius: 6px;
   background: #fff;
@@ -261,7 +261,7 @@ section h2 {
   gap: 16px;
   flex-wrap: wrap;
   font-size: 14px;
-  color: #333;
+  color: var(--color-text);
   margin-bottom: 8px;
 }
 
@@ -272,9 +272,9 @@ section h2 {
 .actions button {
   padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   background: #fff;
-  color: #333;
+  color: var(--color-text);
   cursor: pointer;
 }
 
@@ -295,17 +295,17 @@ section h2 {
   display: inline-block;
   padding: 6px 12px;
   border-radius: 6px;
-  background: #2e7d32;
+  background: var(--color-primary);
   color: #fff;
   font-weight: 600;
 }
 
 .detail-link:hover {
-  background: #1b5e20;
+  background: var(--color-primary-dark);
 }
 
 .detail-link:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

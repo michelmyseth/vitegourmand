@@ -47,7 +47,7 @@ onMounted(async () => {
 }
 
 .presentation {
-  background: #f9f9f9;
+  background: var(--color-bg);
   padding: 48px 0;
   margin-top: 32px;
 }
@@ -62,7 +62,7 @@ onMounted(async () => {
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 16px;
-  color: #333;
+  color: var(--color-text);
 }
 
 .presentation h3 {
@@ -76,7 +76,7 @@ onMounted(async () => {
 .presentation p {
   margin: 12px 0;
   line-height: 1.6;
-  color: #555;
+  color: var(--color-text-muted);
   font-size: 1rem;
 }
 
@@ -90,10 +90,10 @@ onMounted(async () => {
   background: #fff;
   padding: 12px 16px;
   margin: 8px 0;
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid var(--color-primary);
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  color: #555;
+  color: var(--color-text-muted);
 }
 
 .review-item .stars {
@@ -103,7 +103,7 @@ onMounted(async () => {
 
 .review-item blockquote {
   font-style: italic;
-  color: #333;
+  color: var(--color-text);
 }
 
 .review-item .author {
@@ -112,6 +112,6 @@ onMounted(async () => {
 }
 
 .review-item strong {
-  color: #4caf50;
+  color: var(--color-primary);
 }
 </style>

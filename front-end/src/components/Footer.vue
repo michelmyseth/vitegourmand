@@ -32,7 +32,7 @@ onMounted(() => load())
   justify-content: space-between;
   align-items: flex-start;
   padding: 16px 24px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-line);
   background: #fff;
   gap: 24px;
 }
@@ -40,13 +40,13 @@ onMounted(() => load())
 .hours h2 {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
   margin-bottom: 4px;
 }
 
 .hours dl {
   margin: 0;
-  color: #555;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -70,7 +70,7 @@ onMounted(() => load())
 
 .links a {
   text-decoration: none;
-  color: #333;
+  color: var(--color-text);
   font-size: 0.9rem;
 }
 
@@ -79,7 +79,7 @@ onMounted(() => load())
 }
 
 .links a:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

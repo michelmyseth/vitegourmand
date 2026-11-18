@@ -14,8 +14,8 @@ defineProps({ status: { type: String, required: true } })
 .status-accepted { background: #e3f2fd; color: #0d47a1; }
 .status-preparing { background: #ede7f6; color: #4527a0; }
 .status-delivering { background: #e0f7fa; color: #00535b; }
-.status-delivered { background: #e8f5e9; color: #1b5e20; }
+.status-delivered { background: var(--color-primary-light); color: var(--color-primary-dark); }
 .status-awaiting_equipment_return { background: #fff8e1; color: #6d4c00; }
-.status-completed { background: #2e7d32; color: #fff; }
-.status-cancelled { background: #ffebee; color: #8e0000; }
+.status-completed { background: var(--color-primary); color: #fff; }
+.status-cancelled { background: var(--color-error-light); color: #8e0000; }
 </style>

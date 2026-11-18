@@ -78,7 +78,7 @@ async function send() {
 }
 
 .stars input:focus-visible + label {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 </style>

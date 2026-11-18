@@ -132,11 +132,6 @@ async function findAllForStaff({ status, customer } = {}) {
   return rows;
 }
 
-module.exports = {
-  findAllForStaff, updateEvent, updateStatus,
-  ORDER_FIELDS, CUSTOMER_FIELDS, ORDER_FROM, nextOrderNumber, create, addHistory, findById, findHistory, findByUser,
-};
-
 /** Equipment lent with the order (status 'awaiting_equipment_return') / given back */
 async function setEquipment(id, { loan, returned }, db) {
   await query(
@@ -148,4 +143,15 @@ async function setEquipment(id, { loan, returned }, db) {
   );
 }
 
-module.exports.setEquipment = setEquipment;
+module.exports = {
+  nextOrderNumber,
+  create,
+  addHistory,
+  findById,
+  findHistory,
+  findByUser,
+  findAllForStaff,
+  updateEvent,
+  updateStatus,
+  setEquipment,
+};

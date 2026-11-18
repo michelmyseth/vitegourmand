@@ -37,13 +37,13 @@ defineEmits(['update:modelValue'])
   list-style: none;
   margin-top: 6px;
   font-size: 0.9rem;
-  color: #555;
+  color: var(--color-text-muted);
   display: flex;
   flex-wrap: wrap;
   gap: 2px 16px;
 }
 
 .rules .ok {
-  color: #1b5e20;
+  color: var(--color-primary-dark);
 }
 </style>

@@ -68,7 +68,7 @@ import Footer from '@/components/Footer.vue'
 }
 
 .legal a {
-  color: #2e7d32;
+  color: var(--color-primary);
   text-decoration: underline;
 }
 </style>
