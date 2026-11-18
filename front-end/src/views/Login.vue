@@ -30,7 +30,10 @@
 
         <p class="switch">
           Pas encore de compte ?
-          <router-link :to="{ path: '/register', query: route.query.redirect ? { redirect: route.query.redirect } : {} }" class="link">
+          <router-link
+            :to="{ path: '/register', query: route.query.redirect ? { redirect: route.query.redirect } : {} }"
+            class="link"
+          >
             Créer un compte
           </router-link>
         </p>

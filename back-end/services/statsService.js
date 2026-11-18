@@ -17,11 +17,11 @@ async function apply({ menuId, menuTitle, date, orders, revenue }) {
   await MenuStat.updateOne(
     { menuId },
     { $set: { menuTitle }, $inc: { ordersCount: orders, revenue } },
-    { upsert: true }
+    { upsert: true },
   );
   const res = await MenuStat.updateOne(
     { menuId, 'byDay.date': day },
-    { $inc: { 'byDay.$.orders': orders, 'byDay.$.revenue': revenue } }
+    { $inc: { 'byDay.$.orders': orders, 'byDay.$.revenue': revenue } },
   );
   if (res.matchedCount === 0) {
     await MenuStat.updateOne({ menuId }, { $push: { byDay: { date: day, orders, revenue } } });
@@ -34,15 +34,39 @@ function safely(promise) {
 
 /** New order */
 const recordOrder = (order) =>
-  safely(apply({ menuId: order.menuId, menuTitle: order.menuTitle, date: order.createdAt, orders: 1, revenue: order.totalPrice }));
+  safely(
+    apply({
+      menuId: order.menuId,
+      menuTitle: order.menuTitle,
+      date: order.createdAt,
+      orders: 1,
+      revenue: order.totalPrice,
+    }),
+  );
 
 /** Order cancelled: it no longer counts */
 const cancelOrder = (order) =>
-  safely(apply({ menuId: order.menuId, menuTitle: order.menuTitle, date: order.createdAt, orders: -1, revenue: -order.totalPrice }));
+  safely(
+    apply({
+      menuId: order.menuId,
+      menuTitle: order.menuTitle,
+      date: order.createdAt,
+      orders: -1,
+      revenue: -order.totalPrice,
+    }),
+  );
 
 /** Order edited: only the price difference changes the revenue */
 const changeOrderTotal = (order, oldTotal) =>
-  safely(apply({ menuId: order.menuId, menuTitle: order.menuTitle, date: order.createdAt, orders: 0, revenue: round2(order.totalPrice - oldTotal) }));
+  safely(
+    apply({
+      menuId: order.menuId,
+      menuTitle: order.menuTitle,
+      date: order.createdAt,
+      orders: 0,
+      revenue: round2(order.totalPrice - oldTotal),
+    }),
+  );
 
 /** Menu renamed: keep the title of the statistics up to date */
 const renameMenu = (menuId, menuTitle) => safely(MenuStat.updateOne({ menuId }, { $set: { menuTitle } }));
@@ -59,7 +83,7 @@ async function rebuildFromSql() {
      FROM customer_order o JOIN menu m USING (menu_id)
      WHERE o.status <> 'cancelled'
      GROUP BY m.menu_id, m.title, date
-     ORDER BY date`
+     ORDER BY date`,
   );
 
   const docs = new Map();
@@ -107,7 +131,7 @@ async function menuStats({ menuId, from, to } = {}) {
         revenue: { $sum: '$byDay.revenue' },
       },
     },
-    { $sort: { revenue: -1 } }
+    { $sort: { revenue: -1 } },
   );
 
   const rows = await MenuStat.aggregate(pipeline);
@@ -116,4 +140,13 @@ async function menuStats({ menuId, from, to } = {}) {
     .filter((r) => r.orders !== 0 || r.revenue !== 0);
 }
 
-module.exports = { recordOrder, cancelOrder, changeOrderTotal, renameMenu, rebuildFromSql, rebuildIfEmpty, menuStats, orderDay };
+module.exports = {
+  recordOrder,
+  cancelOrder,
+  changeOrderTotal,
+  renameMenu,
+  rebuildFromSql,
+  rebuildIfEmpty,
+  menuStats,
+  orderDay,
+};

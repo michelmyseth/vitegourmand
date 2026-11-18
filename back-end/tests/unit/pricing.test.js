@@ -7,7 +7,10 @@ const bordeaux = { inBordeaux: true, km: 0 };
 describe('computeOrderPrice', () => {
   test('menu price for the minimum number of people, free delivery in Bordeaux', () => {
     expect(computeOrderPrice(menu, 2, bordeaux)).toEqual({
-      menuPrice: 45, discount: 0, deliveryPrice: 0, totalPrice: 45,
+      menuPrice: 45,
+      discount: 0,
+      deliveryPrice: 0,
+      totalPrice: 45,
     });
   });
 
@@ -17,13 +20,16 @@ describe('computeOrderPrice', () => {
 
   test('10 % discount from minimum + 5 people', () => {
     expect(computeOrderPrice(menu, 7, bordeaux)).toMatchObject({
-      menuPrice: 157.5, discount: 15.75, totalPrice: 141.75,
+      menuPrice: 157.5,
+      discount: 15.75,
+      totalPrice: 141.75,
     });
   });
 
   test('delivery outside Bordeaux: 5 € + 0.59 € per km', () => {
     expect(computeOrderPrice(menu, 2, { inBordeaux: false, km: 10 })).toMatchObject({
-      deliveryPrice: 10.9, totalPrice: 55.9,
+      deliveryPrice: 10.9,
+      totalPrice: 55.9,
     });
   });
 

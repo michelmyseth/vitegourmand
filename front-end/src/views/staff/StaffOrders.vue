@@ -21,7 +21,9 @@
 
     <div class="table-wrap" :aria-busy="loading">
       <table class="data-table">
-        <caption class="sr-only">Commandes, triées par date de prestation</caption>
+        <caption class="sr-only">
+          Commandes, triées par date de prestation
+        </caption>
         <thead>
           <tr>
             <th scope="col">N°</th>
@@ -35,11 +37,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-if="!loading && !orders.length"><td colspan="8">Aucune commande.</td></tr>
+          <tr v-if="!loading && !orders.length">
+            <td colspan="8">Aucune commande.</td>
+          </tr>
           <tr v-for="o in orders" :key="o.id">
             <td>{{ o.orderNumber }}</td>
-            <td>{{ formatDate(o.date) }} {{ o.time }}<br /><span class="help">{{ o.city }}</span></td>
-            <td>{{ o.customerFirstName }} {{ o.customerLastName }}<br /><span class="help">{{ o.customerEmail }}</span></td>
+            <td>
+              {{ formatDate(o.date) }} {{ o.time }}<br /><span class="help">{{ o.city }}</span>
+            </td>
+            <td>
+              {{ o.customerFirstName }} {{ o.customerLastName }}<br /><span class="help">{{ o.customerEmail }}</span>
+            </td>
             <td>{{ o.menuTitle }}</td>
             <td>{{ o.people }}</td>
             <td>{{ euros(o.totalPrice) }}</td>

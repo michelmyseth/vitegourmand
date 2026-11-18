@@ -41,7 +41,7 @@ async function register(body) {
   // The role is always 'user': it is never read from the request
   const id = await userRepository.create(
     { ...fields, passwordHash: await hashPassword(password), gdprConsentAt: new Date() },
-    'user'
+    'user',
   );
   const user = await userRepository.findById(id);
   mails.welcome(user);
@@ -92,9 +92,7 @@ async function resetPassword(body) {
   v.throwIfErrors();
 
   await withTransaction(async (client) => {
-    const reset = /^[a-f0-9]{64}$/.test(token)
-      ? await passwordResetRepository.findValid(sha256(token), client)
-      : null;
+    const reset = /^[a-f0-9]{64}$/.test(token) ? await passwordResetRepository.findValid(sha256(token), client) : null;
     if (!reset) throw badRequest('Ce lien est invalide ou a expiré. Faites une nouvelle demande.');
 
     await userRepository.updatePassword(reset.userId, await hashPassword(password), client);

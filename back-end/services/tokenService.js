@@ -32,7 +32,7 @@ async function revokeToken(token) {
   await RevokedToken.updateOne(
     { jti: payload.jti },
     { $setOnInsert: { jti: payload.jti, expiresAt: new Date(payload.exp * 1000) } },
-    { upsert: true }
+    { upsert: true },
   );
 }
 

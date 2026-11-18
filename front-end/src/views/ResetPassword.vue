@@ -18,10 +18,19 @@
           <PasswordField v-model="password" label="Nouveau mot de passe" :error="errors.password" />
           <div class="field">
             <label for="password2">Confirmer le mot de passe</label>
-            <input id="password2" v-model="password2" type="password" autocomplete="new-password" :aria-invalid="!!errors.password2" aria-describedby="password2-err" />
+            <input
+              id="password2"
+              v-model="password2"
+              type="password"
+              autocomplete="new-password"
+              :aria-invalid="!!errors.password2"
+              aria-describedby="password2-err"
+            />
             <p v-if="errors.password2" id="password2-err" class="err">{{ errors.password2 }}</p>
           </div>
-          <button type="submit" class="btn" :disabled="loading">{{ loading ? 'Enregistrement…' : 'Enregistrer' }}</button>
+          <button type="submit" class="btn" :disabled="loading">
+            {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+          </button>
         </form>
       </div>
     </main>

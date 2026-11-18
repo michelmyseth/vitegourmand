@@ -16,7 +16,11 @@
 
         <div class="top">
           <section class="gallery" aria-label="Galerie d'images">
-            <img :src="imageUrl(menu.images[current]?.url)" :alt="menu.images[current]?.alt || `${menu.title} — photo ${current + 1} sur ${menu.images.length}`" class="gallery-main" />
+            <img
+              :src="imageUrl(menu.images[current]?.url)"
+              :alt="menu.images[current]?.alt || `${menu.title} — photo ${current + 1} sur ${menu.images.length}`"
+              class="gallery-main"
+            />
             <div v-if="menu.images.length > 1" class="thumbs">
               <button
                 v-for="(img, i) in menu.images"
@@ -37,8 +41,14 @@
             <p class="desc">{{ menu.description }}</p>
 
             <dl class="facts">
-              <div><dt>Prix</dt><dd>{{ euros(menu.price) }} pour {{ menu.minPeople }} personnes</dd></div>
-              <div><dt>Minimum</dt><dd>{{ menu.minPeople }} personnes</dd></div>
+              <div>
+                <dt>Prix</dt>
+                <dd>{{ euros(menu.price) }} pour {{ menu.minPeople }} personnes</dd>
+              </div>
+              <div>
+                <dt>Minimum</dt>
+                <dd>{{ menu.minPeople }} personnes</dd>
+              </div>
               <div>
                 <dt>Disponibilité</dt>
                 <dd :class="{ 'out-of-stock': menu.stock === 0 }">
@@ -52,12 +62,7 @@
               <p>{{ menu.conditions }}</p>
             </aside>
 
-            <button
-              type="button"
-              class="order-btn"
-              :disabled="menu.stock === 0"
-              @click="order"
-            >
+            <button type="button" class="order-btn" :disabled="menu.stock === 0" @click="order">
               {{ menu.stock === 0 ? 'Menu épuisé' : 'Commander ce menu' }}
             </button>
 
@@ -337,7 +342,7 @@ async function order() {
   background: #fff;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .course h3 {

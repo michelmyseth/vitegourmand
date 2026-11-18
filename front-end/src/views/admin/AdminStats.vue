@@ -1,7 +1,9 @@
 <template>
   <section aria-labelledby="stats-title">
     <h2 id="stats-title">Statistiques</h2>
-    <p class="help">Données issues de MongoDB, mises à jour à chaque commande (les commandes annulées ne sont pas comptées).</p>
+    <p class="help">
+      Données issues de MongoDB, mises à jour à chaque commande (les commandes annulées ne sont pas comptées).
+    </p>
 
     <!-- KAN-68: filters by menu and period, applied to every figure below -->
     <form class="filters panel" @submit.prevent>
@@ -35,8 +37,9 @@
       <div v-else class="panel">
         <h3>Chiffre d'affaires par menu</h3>
         <p class="total">
-          Total{{ periodLabel }} : <strong>{{ euros(totalRevenue) }}</strong>
-          pour {{ totalOrders }} commande{{ totalOrders > 1 ? 's' : '' }}
+          Total{{ periodLabel }} : <strong>{{ euros(totalRevenue) }}</strong> pour {{ totalOrders }} commande{{
+            totalOrders > 1 ? 's' : ''
+          }}
         </p>
         <BarChart
           :labels="byRevenue.map((s) => s.menuTitle)"
@@ -46,17 +49,29 @@
         />
         <div class="table-wrap">
           <table class="data-table revenue">
-            <caption class="sr-only">Chiffre d'affaires par menu</caption>
+            <caption class="sr-only">
+              Chiffre d'affaires par menu
+            </caption>
             <thead>
-              <tr><th scope="col">Menu</th><th scope="col">Commandes</th><th scope="col">Chiffre d'affaires</th></tr>
+              <tr>
+                <th scope="col">Menu</th>
+                <th scope="col">Commandes</th>
+                <th scope="col">Chiffre d'affaires</th>
+              </tr>
             </thead>
             <tbody>
               <tr v-for="s in byRevenue" :key="s.menuId">
-                <td>{{ s.menuTitle }}</td><td>{{ s.orders }}</td><td>{{ euros(s.revenue) }}</td>
+                <td>{{ s.menuTitle }}</td>
+                <td>{{ s.orders }}</td>
+                <td>{{ euros(s.revenue) }}</td>
               </tr>
             </tbody>
             <tfoot>
-              <tr><th scope="row">Total</th><td>{{ totalOrders }}</td><td>{{ euros(totalRevenue) }}</td></tr>
+              <tr>
+                <th scope="row">Total</th>
+                <td>{{ totalOrders }}</td>
+                <td>{{ euros(totalRevenue) }}</td>
+              </tr>
             </tfoot>
           </table>
         </div>
@@ -75,10 +90,20 @@
         <details class="table-view">
           <summary>Voir les données sous forme de tableau</summary>
           <table class="data-table">
-            <caption class="sr-only">Nombre de commandes par menu</caption>
-            <thead><tr><th scope="col">Menu</th><th scope="col">Commandes</th></tr></thead>
+            <caption class="sr-only">
+              Nombre de commandes par menu
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Menu</th>
+                <th scope="col">Commandes</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr v-for="s in byOrders" :key="s.menuId"><td>{{ s.menuTitle }}</td><td>{{ s.orders }}</td></tr>
+              <tr v-for="s in byOrders" :key="s.menuId">
+                <td>{{ s.menuTitle }}</td>
+                <td>{{ s.orders }}</td>
+              </tr>
             </tbody>
           </table>
         </details>

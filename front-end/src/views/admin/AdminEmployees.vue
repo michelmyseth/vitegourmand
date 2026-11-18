@@ -23,7 +23,13 @@
         </div>
         <div class="field">
           <label for="e-email">Email (identifiant)</label>
-          <input id="e-email" v-model.trim="form.email" type="email" autocomplete="off" :aria-invalid="!!errors.email" />
+          <input
+            id="e-email"
+            v-model.trim="form.email"
+            type="email"
+            autocomplete="off"
+            :aria-invalid="!!errors.email"
+          />
           <p v-if="errors.email" class="err">{{ errors.email }}</p>
         </div>
         <PasswordField id="e-password" v-model="form.password" :error="errors.password" />
@@ -38,7 +44,9 @@
         <p v-if="loading" aria-busy="true">Chargement…</p>
         <div v-else class="table-wrap">
           <table class="data-table">
-            <caption class="sr-only">Employés</caption>
+            <caption class="sr-only">
+              Employés
+            </caption>
             <thead>
               <tr>
                 <th scope="col">Employé</th>
@@ -48,20 +56,18 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!employees.length"><td colspan="4">Aucun employé.</td></tr>
+              <tr v-if="!employees.length">
+                <td colspan="4">Aucun employé.</td>
+              </tr>
               <tr v-for="e in employees" :key="e.id">
                 <td>{{ e.firstName }} {{ e.lastName }}</td>
                 <td>{{ e.email }}</td>
                 <td>{{ e.isActive ? 'Actif' : 'Désactivé' }}</td>
                 <td>
                   <!-- KAN-65: the account is kept but can no longer be used -->
-                  <button
-                    type="button"
-                    class="btn btn-small"
-                    :class="{ 'btn-danger': e.isActive }"
-                    @click="toggle(e)"
-                  >
-                    {{ e.isActive ? 'Désactiver' : 'Réactiver' }}<span class="sr-only"> le compte de {{ e.firstName }} {{ e.lastName }}</span>
+                  <button type="button" class="btn btn-small" :class="{ 'btn-danger': e.isActive }" @click="toggle(e)">
+                    {{ e.isActive ? 'Désactiver' : 'Réactiver'
+                    }}<span class="sr-only"> le compte de {{ e.firstName }} {{ e.lastName }}</span>
                   </button>
                 </td>
               </tr>
@@ -100,7 +106,11 @@ onMounted(load)
 
 async function toggle(e) {
   const disable = e.isActive
-  if (disable && !window.confirm(`Désactiver le compte de ${e.firstName} ${e.lastName} ? Il ne pourra plus se connecter.`)) return
+  if (
+    disable &&
+    !window.confirm(`Désactiver le compte de ${e.firstName} ${e.lastName} ? Il ne pourra plus se connecter.`)
+  )
+    return
   error.value = ''
   message.value = ''
   try {

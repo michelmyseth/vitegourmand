@@ -23,7 +23,7 @@ async function findOpeningHours() {
             to_char(close_time, 'HH24:MI') AS "closeTime",
             is_closed AS "isClosed"
      FROM opening_hours
-     ORDER BY day_of_week`
+     ORDER BY day_of_week`,
   );
   return rows;
 }
@@ -33,7 +33,7 @@ async function updateOpeningHours(days, db) {
     await query(
       `UPDATE opening_hours SET open_time = $2, close_time = $3, is_closed = $4 WHERE day_of_week = $1`,
       [d.dayOfWeek, d.isClosed ? null : d.openTime, d.isClosed ? null : d.closeTime, d.isClosed],
-      db
+      db,
     );
   }
 }

@@ -12,14 +12,27 @@
       </fieldset>
       <div class="field">
         <label :for="`${uid}-reason`">Motif de la modification</label>
-        <textarea :id="`${uid}-reason`" v-model.trim="form.reason" rows="2" maxlength="500" :aria-invalid="!!errors.reason"></textarea>
+        <textarea
+          :id="`${uid}-reason`"
+          v-model.trim="form.reason"
+          rows="2"
+          maxlength="500"
+          :aria-invalid="!!errors.reason"
+        ></textarea>
         <p v-if="errors.reason" class="err">{{ errors.reason }}</p>
       </div>
     </template>
 
     <div class="field">
       <label :for="`${uid}-people`">Nombre de personnes (minimum {{ order.menuMinPeople }})</label>
-      <input :id="`${uid}-people`" v-model.number="form.people" type="number" :min="order.menuMinPeople" step="1" :aria-invalid="!!errors.people" />
+      <input
+        :id="`${uid}-people`"
+        v-model.number="form.people"
+        type="number"
+        :min="order.menuMinPeople"
+        step="1"
+        :aria-invalid="!!errors.people"
+      />
       <p v-if="errors.people" class="err">{{ errors.people }}</p>
     </div>
 

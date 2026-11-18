@@ -36,12 +36,19 @@ const route = useRoute()
 const router = useRouter()
 const open = ref(false)
 
-const spaceLabel = computed(() => ({ admin: 'Espace admin', employee: 'Espace employé' })[user.value?.role] || 'Mon espace')
+const spaceLabel = computed(
+  () => ({ admin: 'Espace admin', employee: 'Espace employé' })[user.value?.role] || 'Mon espace'
+)
 
 onMounted(fetchUser)
 
 // Close the mobile menu after navigating
-watch(() => route.fullPath, () => { open.value = false })
+watch(
+  () => route.fullPath,
+  () => {
+    open.value = false
+  }
+)
 
 async function onLogout() {
   await logout()
@@ -57,7 +64,7 @@ async function onLogout() {
   justify-content: space-between;
   padding: 24px 40px;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .navbar-title {
@@ -141,7 +148,7 @@ async function onLogout() {
     align-items: stretch;
     gap: 0;
     background: #fff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   }
 
   .navbar-links.open {

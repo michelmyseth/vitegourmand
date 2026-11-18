@@ -12,22 +12,35 @@ const CLASSIQUE = 3;
 const VEGAN = 5;
 
 const orderBody = (overrides = {}) => ({
-  menuId: CLASSIQUE, people: 7, address: '12 avenue de la Marne', postcode: '33700', city: 'Mérignac',
-  date: inDays(10), time: '12:30', place: 'Salle des fêtes', ...overrides,
+  menuId: CLASSIQUE,
+  people: 7,
+  address: '12 avenue de la Marne',
+  postcode: '33700',
+  city: 'Mérignac',
+  date: inDays(10),
+  time: '12:30',
+  place: 'Salle des fêtes',
+  ...overrides,
 });
 
 const stockOf = async (menuId) => (await query('SELECT stock FROM menu WHERE menu_id = $1', [menuId])).rows[0].stock;
 
 describe('POST /api/orders', () => {
   let customer;
-  beforeAll(async () => { customer = await loginAs('user'); });
+  beforeAll(async () => {
+    customer = await loginAs('user');
+  });
 
   test('the server computes the price itself and ignores the one sent by the browser', async () => {
     const res = await customer.post('/api/orders').send(orderBody({ totalPrice: 1, discount: 999 }));
     expect(res.status).toBe(201);
     // 7 × 22.50 = 157.50, -10 % = -15.75, delivery 5 + 10 × 0.59 = 10.90
     expect(res.body).toMatchObject({
-      status: 'pending', menuPrice: 157.5, discount: 15.75, deliveryPrice: 10.9, totalPrice: 152.65,
+      status: 'pending',
+      menuPrice: 157.5,
+      discount: 15.75,
+      deliveryPrice: 10.9,
+      totalPrice: 152.65,
     });
     expect(res.body.orderNumber).toMatch(/^VG-\d{4}-\d{4}$/);
   });
@@ -92,7 +105,8 @@ describe('order life cycle', () => {
     expect(missing.status).toBe(400);
 
     const before = await stockOf(CLASSIQUE);
-    const ok = await employee.post(`/api/staff/orders/${order.id}/cancel`)
+    const ok = await employee
+      .post(`/api/staff/orders/${order.id}/cancel`)
       .send({ contactMethod: 'phone', reason: 'Client injoignable le jour J' });
     expect(ok.status).toBe(200);
     expect(await stockOf(CLASSIQUE)).toBe(before + 1); // the menu goes back in stock

@@ -9,7 +9,7 @@ const dayStatSchema = new mongoose.Schema(
     orders: { type: Number, default: 0 },
     revenue: { type: Number, default: 0 }, // euros
   },
-  { _id: false }
+  { _id: false },
 );
 
 const menuStatSchema = new mongoose.Schema(
@@ -20,7 +20,7 @@ const menuStatSchema = new mongoose.Schema(
     revenue: { type: Number, default: 0 },
     byDay: { type: [dayStatSchema], default: [] },
   },
-  { collection: 'menu_stats', versionKey: false, timestamps: { createdAt: false, updatedAt: 'updatedAt' } }
+  { collection: 'menu_stats', versionKey: false, timestamps: { createdAt: false, updatedAt: 'updatedAt' } },
 );
 
 module.exports = mongoose.model('MenuStat', menuStatSchema);

@@ -36,7 +36,7 @@ async function findAll({ maxPrice, minPrice, themeId, dietId, minPeople, include
      ${MENU_FROM}
      ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
      ORDER BY m.min_price, m.title`,
-    params
+    params,
   );
   return rows;
 }
@@ -48,7 +48,7 @@ async function findById(id, { includeInactive = false, forUpdate = false } = {},
      WHERE m.menu_id = $1 ${includeInactive ? '' : 'AND m.is_active'}
      ${forUpdate ? 'FOR UPDATE OF m' : ''}`,
     [id],
-    db
+    db,
   );
   const menu = rows[0];
   if (!menu) return null;
@@ -58,7 +58,7 @@ async function findById(id, { includeInactive = false, forUpdate = false } = {},
       `SELECT image_id AS id, url, alt_text AS alt, position FROM menu_image
        WHERE menu_id = $1 ORDER BY position`,
       [id],
-      db
+      db,
     ),
     query(
       `SELECT di.dish_id AS id, di.name, di.course, di.description,
@@ -71,7 +71,7 @@ async function findById(id, { includeInactive = false, forUpdate = false } = {},
        GROUP BY di.dish_id
        ORDER BY di.name`,
       [id],
-      db
+      db,
     ),
   ]);
 
@@ -91,7 +91,7 @@ async function findForOrder(id, db) {
             is_active AS "isActive", theme_id AS "themeId"
      FROM menu WHERE menu_id = $1 FOR UPDATE`,
     [id],
-    db
+    db,
   );
   return rows[0] || null;
 }
@@ -102,7 +102,7 @@ async function findForOrderReadOnly(id, db) {
     `SELECT menu_id AS id, title, min_people AS "minPeople", min_price AS price, stock, is_active AS "isActive"
      FROM menu WHERE menu_id = $1`,
     [id],
-    db
+    db,
   );
   return rows[0] || null;
 }
@@ -116,10 +116,10 @@ async function changeStock(id, delta, db) {
 // ---------------------------------------------------------------
 
 async function titleExists(title, exceptId = null) {
-  const { rows } = await query(
-    'SELECT 1 FROM menu WHERE lower(title) = lower($1) AND menu_id IS DISTINCT FROM $2',
-    [title, exceptId]
-  );
+  const { rows } = await query('SELECT 1 FROM menu WHERE lower(title) = lower($1) AND menu_id IS DISTINCT FROM $2', [
+    title,
+    exceptId,
+  ]);
   return rows.length > 0;
 }
 
@@ -128,7 +128,7 @@ async function create(m, db) {
     `INSERT INTO menu (title, description, theme_id, diet_id, min_people, min_price, conditions, stock, is_active)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING menu_id AS id`,
     [m.title, m.description, m.themeId, m.dietId, m.minPeople, m.price, m.conditions, m.stock, m.isActive],
-    db
+    db,
   );
   return rows[0].id;
 }
@@ -139,7 +139,7 @@ async function update(id, m, db) {
        min_price = $7, conditions = $8, stock = $9, is_active = $10, updated_at = now()
      WHERE menu_id = $1`,
     [id, m.title, m.description, m.themeId, m.dietId, m.minPeople, m.price, m.conditions, m.stock, m.isActive],
-    db
+    db,
   );
   return rowCount > 0;
 }
@@ -148,11 +148,7 @@ async function update(id, m, db) {
 async function setDishes(id, dishIds, db) {
   await query('DELETE FROM menu_dish WHERE menu_id = $1', [id], db);
   if (dishIds.length) {
-    await query(
-      'INSERT INTO menu_dish (menu_id, dish_id) SELECT $1, unnest($2::int[])',
-      [id, dishIds],
-      db
-    );
+    await query('INSERT INTO menu_dish (menu_id, dish_id) SELECT $1, unnest($2::int[])', [id, dishIds], db);
   }
 }
 
@@ -174,16 +170,16 @@ async function addImage(menuId, url, alt) {
     `INSERT INTO menu_image (menu_id, url, alt_text, position)
      SELECT $1, $2, $3, coalesce(max(position), 0) + 1 FROM menu_image WHERE menu_id = $1
      RETURNING image_id AS id, url, alt_text AS alt, position`,
-    [menuId, url, alt]
+    [menuId, url, alt],
   );
   return rows[0];
 }
 
 async function removeImage(menuId, imageId) {
-  const { rows } = await query(
-    'DELETE FROM menu_image WHERE menu_id = $1 AND image_id = $2 RETURNING url',
-    [menuId, imageId]
-  );
+  const { rows } = await query('DELETE FROM menu_image WHERE menu_id = $1 AND image_id = $2 RETURNING url', [
+    menuId,
+    imageId,
+  ]);
   return rows[0] || null;
 }
 
@@ -193,8 +189,21 @@ async function imageUrls(menuId) {
 }
 
 module.exports = {
-  findAll, findById, findForOrder, findForOrderReadOnly, changeStock,
-  titleExists, create, update, setDishes, hasOrders, remove, deactivate,
-  addImage, removeImage, imageUrls,
-  MENU_FIELDS, MENU_FROM,
+  findAll,
+  findById,
+  findForOrder,
+  findForOrderReadOnly,
+  changeStock,
+  titleExists,
+  create,
+  update,
+  setDishes,
+  hasOrders,
+  remove,
+  deactivate,
+  addImage,
+  removeImage,
+  imageUrls,
+  MENU_FIELDS,
+  MENU_FROM,
 };

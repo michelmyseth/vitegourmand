@@ -44,7 +44,9 @@
     <p v-if="loading" aria-busy="true">Chargement…</p>
     <div v-else-if="!editing" class="table-wrap">
       <table class="data-table">
-        <caption class="sr-only">Liste des plats</caption>
+        <caption class="sr-only">
+          Liste des plats
+        </caption>
         <thead>
           <tr>
             <th scope="col">Plat</th>
@@ -112,9 +114,12 @@ async function startEdit(d) {
   Object.keys(errors).forEach((k) => delete errors[k])
   error.value = ''
   message.value = ''
-  Object.assign(form, d
-    ? { id: d.id, name: d.name, course: d.course, description: d.description, allergenIds: [...d.allergenIds] }
-    : { id: null, name: '', course: '', description: '', allergenIds: [] })
+  Object.assign(
+    form,
+    d
+      ? { id: d.id, name: d.name, course: d.course, description: d.description, allergenIds: [...d.allergenIds] }
+      : { id: null, name: '', course: '', description: '', allergenIds: [] }
+  )
   editing.value = true
   await nextTick()
   formEl.value?.querySelector('input')?.focus()

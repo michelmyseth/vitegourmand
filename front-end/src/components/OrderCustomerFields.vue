@@ -8,7 +8,13 @@
     <div class="grid-2">
       <div v-for="f in FIELDS" :key="f.key" class="field">
         <label :for="`customer-${f.key}`">{{ f.label }}</label>
-        <input :id="`customer-${f.key}`" :value="customer[f.key]" :type="f.type" :autocomplete="f.autocomplete" readonly />
+        <input
+          :id="`customer-${f.key}`"
+          :value="customer[f.key]"
+          :type="f.type"
+          :autocomplete="f.autocomplete"
+          readonly
+        />
       </div>
     </div>
   </fieldset>
