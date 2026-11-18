@@ -2,7 +2,7 @@
 const reviewRepository = require('../repositories/reviewRepository');
 const orderRepository = require('../repositories/orderRepository');
 const { validator } = require('../utils/validate');
-const { notFound, conflict } = require('../utils/httpError');
+const { notFound, conflict, badRequest } = require('../utils/httpError');
 
 /** Only on a completed order of the customer, and only once */
 async function createReview(user, orderId, body) {
@@ -20,4 +20,21 @@ async function createReview(user, orderId, body) {
   return reviewRepository.create({ orderId, userId: user.id, rating, comment });
 }
 
-module.exports = { createReview };
+const listApproved = () => reviewRepository.findApproved();
+
+function listForModeration(q = {}) {
+  const status = typeof q.status === 'string' && q.status ? q.status : null;
+  if (status && !['pending', 'approved', 'rejected'].includes(status)) throw badRequest('Statut inconnu');
+  return reviewRepository.findForModeration(status);
+}
+
+/** Approve or reject (KAN-63): only approved reviews are shown on the home page */
+async function moderate(actor, id, body) {
+  const status = body?.status;
+  if (!['approved', 'rejected'].includes(status)) throw badRequest('Choisissez de valider ou de refuser l’avis.');
+  const review = await reviewRepository.moderate(id, status, actor.id);
+  if (!review) throw notFound('Avis introuvable.');
+  return review;
+}
+
+module.exports = { createReview, listApproved, listForModeration, moderate };
