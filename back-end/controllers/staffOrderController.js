@@ -13,4 +13,12 @@ async function changeStatus(req, res) {
   res.json(await staffOrderService.changeStatus(req.user, parseId(req.params.id), req.body));
 }
 
-module.exports = { list, detail, changeStatus };
+async function edit(req, res) {
+  res.json(await staffOrderService.editOrder(req.user, parseId(req.params.id), req.body));
+}
+
+async function cancel(req, res) {
+  res.json(await staffOrderService.cancelOrder(req.user, parseId(req.params.id), req.body));
+}
+
+module.exports = { list, detail, changeStatus, edit, cancel };
