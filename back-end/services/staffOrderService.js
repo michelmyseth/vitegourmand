@@ -2,12 +2,34 @@
 // edit / cancel after contacting the customer (KAN-62)
 const orderRepository = require('../repositories/orderRepository');
 const reviewRepository = require('../repositories/reviewRepository');
-const { badRequest, notFound } = require('../utils/httpError');
+const { withTransaction } = require('../config/db');
+const { mails } = require('./mailService');
+const { badRequest, notFound, conflict } = require('../utils/httpError');
 
 const STATUSES = [
   'pending', 'accepted', 'preparing', 'delivering', 'delivered',
   'awaiting_equipment_return', 'completed', 'cancelled',
 ];
+
+// Allowed changes of status (KAN-61). Cancelling is done separately (KAN-62).
+const NEXT_STATUSES = {
+  pending: ['accepted'],
+  accepted: ['preparing'],
+  preparing: ['delivering'],
+  delivering: ['delivered'],
+  delivered: ['awaiting_equipment_return', 'completed'],
+  awaiting_equipment_return: ['completed'],
+  completed: [],
+  cancelled: [],
+};
+
+const LABELS = {
+  pending: 'En attente', accepted: 'Acceptée', preparing: 'En préparation', delivering: 'En cours de livraison',
+  delivered: 'Livrée', awaiting_equipment_return: 'En attente du retour de matériel', completed: 'Terminée',
+  cancelled: 'Annulée',
+};
+
+const withNext = (order) => ({ ...order, nextStatuses: NEXT_STATUSES[order.status] });
 
 function listOrders(q = {}) {
   const status = typeof q.status === 'string' && q.status ? q.status : undefined;
@@ -21,7 +43,34 @@ async function getOrder(id) {
   if (!order) throw notFound('Commande introuvable.');
   order.history = await orderRepository.findHistory(id);
   order.review = order.reviewId ? await reviewRepository.findByOrder(id) : null;
-  return order;
+  return withNext(order);
 }
 
-module.exports = { STATUSES, listOrders, getOrder };
+/** Changes the status; each change is written in the history with date/time and employee */
+async function changeStatus(actor, id, body) {
+  const status = typeof body.status === 'string' ? body.status : '';
+  if (!STATUSES.includes(status)) throw badRequest('Statut inconnu');
+
+  const order = await withTransaction(async (client) => {
+    const current = await orderRepository.findById(id, { forUpdate: true }, client);
+    if (!current) throw notFound('Commande introuvable.');
+    if (!NEXT_STATUSES[current.status].includes(status)) {
+      throw conflict(`Impossible de passer du statut « ${LABELS[current.status]} » à « ${LABELS[status]} ».`);
+    }
+
+    await orderRepository.updateStatus(id, status, client);
+    if (status === 'awaiting_equipment_return') await orderRepository.setEquipment(id, { loan: true }, client);
+    if (current.status === 'awaiting_equipment_return' && status === 'completed') {
+      await orderRepository.setEquipment(id, { returned: true }, client);
+    }
+    await orderRepository.addHistory(id, status, { changedBy: actor.id }, client);
+    return orderRepository.findById(id, {}, client);
+  });
+
+  // Emails to the customer (KAN-71)
+  if (status === 'awaiting_equipment_return') mails.equipmentReturn(order);
+  if (status === 'completed') mails.orderCompleted(order);
+  return getOrder(order.id);
+}
+
+module.exports = { STATUSES, NEXT_STATUSES, listOrders, getOrder, changeStatus };

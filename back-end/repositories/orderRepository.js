@@ -136,3 +136,16 @@ module.exports = {
   findAllForStaff, updateEvent, updateStatus,
   ORDER_FIELDS, CUSTOMER_FIELDS, ORDER_FROM, nextOrderNumber, create, addHistory, findById, findHistory, findByUser,
 };
+
+/** Equipment lent with the order (status 'awaiting_equipment_return') / given back */
+async function setEquipment(id, { loan, returned }, db) {
+  await query(
+    `UPDATE customer_order SET equipment_loan = coalesce($2, equipment_loan),
+       equipment_returned = coalesce($3, equipment_returned), updated_at = now()
+     WHERE order_id = $1`,
+    [id, loan ?? null, returned ?? null],
+    db
+  );
+}
+
+module.exports.setEquipment = setEquipment;

@@ -14,6 +14,7 @@ router.use(requireAuth, requireEmployee);
 // Orders (KAN-60)
 router.get('/orders', orders.list); // ?status=&customer=
 router.get('/orders/:id', orders.detail);
+router.put('/orders/:id/status', orders.changeStatus); // KAN-61
 
 // Menus (KAN-57)
 router.get('/menus', menus.list);
