@@ -58,8 +58,10 @@
               :disabled="menu.stock === 0"
               @click="order"
             >
-              Commander ce menu
+              {{ menu.stock === 0 ? 'Menu épuisé' : 'Commander ce menu' }}
             </button>
+
+            <p v-if="staffMessage" class="login-prompt" role="alert">{{ staffMessage }}</p>
 
             <div v-if="askLogin" class="login-prompt" role="alert">
               <p>Vous devez être connecté pour commander.</p>
@@ -115,6 +117,7 @@ async function load(id) {
   error.value = ''
   current.value = 0
   askLogin.value = false
+  staffMessage.value = ''
   try {
     menu.value = await api(`/api/menus/${encodeURIComponent(id)}`)
   } catch (err) {
@@ -134,13 +137,19 @@ const courses = [
 ]
 
 const orderPath = computed(() => `/order?menu=${menu.value.id}`)
+const staffMessage = ref('')
 
+// KAN-46: logged-in customer -> order page with this menu pre-selected;
+// visitor -> asked to log in or sign up, then sent back to the order page
 async function order() {
+  staffMessage.value = ''
   const user = await fetchUser()
-  if (user) {
-    router.push(orderPath.value)
-  } else {
+  if (!user) {
     askLogin.value = true
+  } else if (user.role !== 'user') {
+    staffMessage.value = 'Les commandes se passent depuis un compte client.'
+  } else {
+    router.push(orderPath.value)
   }
 }
 </script>

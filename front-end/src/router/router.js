@@ -33,7 +33,7 @@ const routes = [
     path: '/order',
     name: 'Order',
     component: Order,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['user'] }
   },
   {
     path: '/contact',
