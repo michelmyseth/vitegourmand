@@ -13,4 +13,12 @@ async function getMine(req, res) {
   res.json(await orderService.getMyOrder(req.user, parseId(req.params.id)));
 }
 
-module.exports = { create, listMine, getMine };
+async function editMine(req, res) {
+  res.json(await orderService.editMyOrder(req.user, parseId(req.params.id), req.body));
+}
+
+async function cancelMine(req, res) {
+  res.json(await orderService.cancelMyOrder(req.user, parseId(req.params.id)));
+}
+
+module.exports = { create, listMine, getMine, editMine, cancelMine };

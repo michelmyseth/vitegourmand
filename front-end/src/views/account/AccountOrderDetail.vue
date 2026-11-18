@@ -18,7 +18,27 @@
         </div>
 
         <div class="side">
-          <!-- KAN-53 edit / cancel, KAN-54 tracking, KAN-56 review -->
+          <!-- KAN-53: edit / cancel while the order is not accepted -->
+          <div v-if="order.status === 'pending'" class="panel">
+            <h3>Modifier ou annuler</h3>
+            <OrderEditForm
+              v-if="editing"
+              :order="order"
+              :endpoint="`/api/orders/${order.id}`"
+              @saved="onSaved"
+              @cancel="editing = false"
+            />
+            <template v-else>
+              <p class="help">Possible tant que la commande n'a pas été acceptée par notre équipe.</p>
+              <div class="buttons">
+                <button type="button" class="btn" @click="editing = true">Modifier la commande</button>
+                <button type="button" class="btn btn-danger" :disabled="cancelling" @click="cancel">
+                  {{ cancelling ? 'Annulation…' : 'Annuler la commande' }}
+                </button>
+              </div>
+              <p v-if="actionError" class="alert alert-error" role="alert">{{ actionError }}</p>
+            </template>
+          </div>
         </div>
       </div>
     </template>
@@ -30,6 +50,7 @@ import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import StatusBadge from '@/components/StatusBadge.vue'
 import OrderDetails from '@/components/OrderDetails.vue'
+import OrderEditForm from '@/components/OrderEditForm.vue'
 import { api } from '@/services/http'
 
 const route = useRoute()
@@ -37,10 +58,35 @@ const order = ref(null)
 const loading = ref(true)
 const error = ref('')
 const message = ref('')
+const editing = ref(false)
+const cancelling = ref(false)
+const actionError = ref('')
+
+async function onSaved() {
+  editing.value = false
+  await load()
+  message.value = 'Votre commande a été modifiée.'
+}
+
+async function cancel() {
+  if (!window.confirm(`Annuler la commande ${order.value.orderNumber} ? Cette action est définitive.`)) return
+  actionError.value = ''
+  cancelling.value = true
+  try {
+    await api(`/api/orders/${order.value.id}/cancel`, { method: 'POST' })
+    await load()
+    message.value = 'Votre commande a été annulée.'
+  } catch (err) {
+    actionError.value = err.message
+  } finally {
+    cancelling.value = false
+  }
+}
 
 async function load() {
   loading.value = true
   error.value = ''
+  message.value = ''
   try {
     order.value = await api(`/api/orders/${encodeURIComponent(route.params.id)}`)
   } catch (err) {
@@ -67,6 +113,13 @@ watch(() => route.params.id, load, { immediate: true })
   grid-template-columns: 3fr 2fr;
   gap: 20px;
   align-items: start;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
 }
 
 @media (max-width: 860px) {

@@ -102,4 +102,78 @@ async function getMyOrder(user, orderId) {
   return order;
 }
 
-module.exports = { createOrder, listMyOrders, getMyOrder, readEventFields, quote, tomorrow };
+// ---------------------------------------------------------------
+// Edit / cancel (KAN-53 for the customer, KAN-62 for the employees)
+// ---------------------------------------------------------------
+
+/**
+ * Changes the event of an order (everything except the menu) and recomputes the price.
+ * `check(order)` throws if the actor may not edit this order.
+ * `log` = { contactMethod, reason } written in the history (employees).
+ */
+async function editOrder(orderId, body, actor, check, log = null) {
+  const { v, fields } = readEventFields(body);
+  v.throwIfErrors();
+
+  const current = await orderRepository.findById(orderId);
+  check(current);
+  const menu = await menuRepository.findForOrderReadOnly(current.menuId);
+  if (fields.people < menu.minPeople) {
+    throw badRequest('Nombre de personnes insuffisant.', {
+      people: `Le nombre de personnes doit être d'au moins ${menu.minPeople}.`,
+    });
+  }
+  const prices = await quote(menu, fields);
+
+  const order = await withTransaction(async (client) => {
+    const locked = await orderRepository.findById(orderId, { forUpdate: true }, client);
+    check(locked); // the status may have changed meanwhile
+    await orderRepository.updateEvent(orderId, { ...fields, ...prices }, client);
+    if (log) {
+      await orderRepository.addHistory(orderId, locked.status, {
+        changedBy: actor.id, contactMethod: log.contactMethod, reason: `Modification : ${log.reason}`,
+      }, client);
+    }
+    return orderRepository.findById(orderId, {}, client);
+  });
+
+  if (order.totalPrice !== current.totalPrice && order.status !== 'cancelled') {
+    statsService.changeOrderTotal(order, current.totalPrice);
+  }
+  return order;
+}
+
+/** Cancels an order: the menu goes back in stock and leaves the statistics */
+async function cancelOrder(orderId, actor, check, log = {}) {
+  const order = await withTransaction(async (client) => {
+    const locked = await orderRepository.findById(orderId, { forUpdate: true }, client);
+    check(locked);
+    await orderRepository.updateStatus(orderId, 'cancelled', client);
+    await menuRepository.changeStock(locked.menuId, 1, client);
+    await orderRepository.addHistory(orderId, 'cancelled', {
+      changedBy: actor.id, contactMethod: log.contactMethod || null, reason: log.reason || null,
+    }, client);
+    return orderRepository.findById(orderId, {}, client);
+  });
+  statsService.cancelOrder(order);
+  return order;
+}
+
+/** The customer may only edit / cancel their own order while it is not accepted */
+function customerCheck(user) {
+  return (order) => {
+    if (!order || order.userId !== user.id) throw notFound('Commande introuvable.');
+    if (order.status === 'cancelled') throw conflict('Cette commande est déjà annulée.');
+    if (order.status !== 'pending') {
+      throw conflict('Cette commande a déjà été acceptée : elle ne peut plus être modifiée ni annulée. Contactez-nous.');
+    }
+  };
+}
+
+const editMyOrder = (user, orderId, body) => editOrder(orderId, body, user, customerCheck(user));
+const cancelMyOrder = (user, orderId) => cancelOrder(orderId, user, customerCheck(user));
+
+module.exports = {
+  createOrder, listMyOrders, getMyOrder, editMyOrder, cancelMyOrder,
+  editOrder, cancelOrder, readEventFields, quote, tomorrow,
+};
