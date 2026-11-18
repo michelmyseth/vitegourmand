@@ -86,4 +86,58 @@ CREATE TABLE password_reset_token (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- -------------------------------------------------------------
+-- Menus and dishes
+-- -------------------------------------------------------------
+
+CREATE TABLE menu (
+  menu_id      INT           GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  theme_id     INT           NOT NULL REFERENCES theme (theme_id),
+  diet_id      INT           NOT NULL REFERENCES diet (diet_id),
+  title        VARCHAR(100)  NOT NULL UNIQUE,
+  description  TEXT          NOT NULL,
+  min_people   INT           NOT NULL CHECK (min_people > 0),
+  -- Price of the menu for min_people people (price per person = min_price / min_people)
+  min_price    NUMERIC(10,2) NOT NULL CHECK (min_price > 0),
+  conditions   TEXT          NOT NULL DEFAULT '',
+  -- Number of orders still possible for this menu
+  stock        INT           NOT NULL DEFAULT 0 CHECK (stock >= 0),
+  is_active    BOOLEAN       NOT NULL DEFAULT TRUE,
+  created_at   TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ   NOT NULL DEFAULT now()
+);
+
+CREATE TABLE menu_image (
+  image_id  INT          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  menu_id   INT          NOT NULL REFERENCES menu (menu_id) ON DELETE CASCADE,
+  url       VARCHAR(500) NOT NULL,
+  alt_text  VARCHAR(255) NOT NULL DEFAULT '',
+  position  SMALLINT     NOT NULL DEFAULT 0,
+  UNIQUE (menu_id, position)
+);
+
+CREATE TABLE dish (
+  dish_id      INT          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name         VARCHAR(150) NOT NULL UNIQUE,
+  course       VARCHAR(10)  NOT NULL CHECK (course IN ('starter', 'main', 'dessert')),
+  description  TEXT         NOT NULL DEFAULT ''
+);
+
+-- Many-to-many: a menu has several dishes, a dish can be in several menus
+CREATE TABLE menu_dish (
+  menu_id  INT NOT NULL REFERENCES menu (menu_id) ON DELETE CASCADE,
+  dish_id  INT NOT NULL REFERENCES dish (dish_id) ON DELETE RESTRICT,
+  PRIMARY KEY (menu_id, dish_id)
+);
+
+CREATE TABLE dish_allergen (
+  dish_id      INT NOT NULL REFERENCES dish (dish_id) ON DELETE CASCADE,
+  allergen_id  INT NOT NULL REFERENCES allergen (allergen_id) ON DELETE RESTRICT,
+  PRIMARY KEY (dish_id, allergen_id)
+);
+
+CREATE INDEX menu_theme_idx ON menu (theme_id);
+CREATE INDEX menu_diet_idx ON menu (diet_id);
+CREATE INDEX menu_dish_dish_idx ON menu_dish (dish_id);
+
 COMMIT;
