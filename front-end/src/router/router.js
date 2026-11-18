@@ -14,6 +14,15 @@ import AccountLayout from '@/views/account/AccountLayout.vue'
 import AccountOrders from '@/views/account/AccountOrders.vue'
 import AccountOrderDetail from '@/views/account/AccountOrderDetail.vue'
 import AccountProfile from '@/views/account/AccountProfile.vue'
+import StaffLayout from '@/views/staff/StaffLayout.vue'
+import StaffMenus from '@/views/staff/StaffMenus.vue'
+import StaffDishes from '@/views/staff/StaffDishes.vue'
+import StaffHours from '@/views/staff/StaffHours.vue'
+import StaffOrders from '@/views/staff/StaffOrders.vue'
+import StaffReviews from '@/views/staff/StaffReviews.vue'
+import StaffOrderDetail from '@/views/staff/StaffOrderDetail.vue'
+import AdminEmployees from '@/views/admin/AdminEmployees.vue'
+import AdminStats from '@/views/admin/AdminStats.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -59,6 +68,32 @@ const routes = [
     ]
   },
   { path: '/profile', redirect: '/account' },
+  // Administrator area (same layout as the employee area)
+  {
+    path: '/admin',
+    component: StaffLayout,
+    meta: { requiresAuth: true, roles: ['admin'] },
+    children: [
+      { path: '', redirect: '/admin/stats' },
+      { path: 'stats', name: 'AdminStats', component: AdminStats },
+      { path: 'employees', name: 'AdminEmployees', component: AdminEmployees }
+    ]
+  },
+  // Employee area; the administrator has the same rights (KAN-66)
+  {
+    path: '/employee',
+    component: StaffLayout,
+    meta: { requiresAuth: true, roles: ['employee', 'admin'] },
+    children: [
+      { path: '', redirect: '/employee/orders' },
+      { path: 'orders', name: 'StaffOrders', component: StaffOrders },
+      { path: 'orders/:id', name: 'StaffOrder', component: StaffOrderDetail },
+      { path: 'menus', name: 'StaffMenus', component: StaffMenus },
+      { path: 'dishes', name: 'StaffDishes', component: StaffDishes },
+      { path: 'hours', name: 'StaffHours', component: StaffHours },
+      { path: 'reviews', name: 'StaffReviews', component: StaffReviews }
+    ]
+  },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
   {

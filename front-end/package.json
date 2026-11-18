@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "chart.js": "^4.6.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",

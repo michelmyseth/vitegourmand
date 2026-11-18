@@ -108,7 +108,44 @@ async function updateStatus(id, status, db) {
   await query('UPDATE customer_order SET status = $2, updated_at = now() WHERE order_id = $1', [id, status], db);
 }
 
+/** Employee list (KAN-60): filter by status and by customer (name, email or order number) */
+async function findAllForStaff({ status, customer } = {}) {
+  const where = [];
+  const params = [];
+  if (status) {
+    params.push(status);
+    where.push(`o.status = $${params.length}`);
+  }
+  if (customer) {
+    // The search text is a parameter; the LIKE wildcards typed by the user are escaped
+    params.push(`%${customer.replace(/[\\%_]/g, (c) => `\\${c}`)}%`);
+    const p = `$${params.length}`;
+    where.push(`(u.last_name ILIKE ${p} OR u.first_name ILIKE ${p} OR u.email ILIKE ${p}
+               OR (u.first_name || ' ' || u.last_name) ILIKE ${p} OR o.order_number ILIKE ${p})`);
+  }
+  const { rows } = await query(
+    `SELECT ${ORDER_FIELDS}, ${CUSTOMER_FIELDS} ${ORDER_FROM}
+     ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
+     ORDER BY o.event_date, o.event_time`,
+    params
+  );
+  return rows;
+}
+
 module.exports = {
-  updateEvent, updateStatus,
+  findAllForStaff, updateEvent, updateStatus,
   ORDER_FIELDS, CUSTOMER_FIELDS, ORDER_FROM, nextOrderNumber, create, addHistory, findById, findHistory, findByUser,
 };
+
+/** Equipment lent with the order (status 'awaiting_equipment_return') / given back */
+async function setEquipment(id, { loan, returned }, db) {
+  await query(
+    `UPDATE customer_order SET equipment_loan = coalesce($2, equipment_loan),
+       equipment_returned = coalesce($3, equipment_returned), updated_at = now()
+     WHERE order_id = $1`,
+    [id, loan ?? null, returned ?? null],
+    db
+  );
+}
+
+module.exports.setEquipment = setEquipment;
