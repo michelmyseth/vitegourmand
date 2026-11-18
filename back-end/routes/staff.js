@@ -20,5 +20,8 @@ router.delete('/menus/:id/images/:imageId', menus.removeImage);
 
 // Dishes (KAN-58)
 router.get('/dishes', dishes.list);
+router.post('/dishes', dishes.create);
+router.put('/dishes/:id', dishes.update);
+router.delete('/dishes/:id', dishes.remove);
 
 module.exports = router;
