@@ -25,6 +25,15 @@ const mails = {
     text: `Bonjour ${user.firstName},\n\nPour choisir un nouveau mot de passe, ouvrez ce lien (valable 1 heure) :\n${link}\n\n`
       + "Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.",
   }),
+  orderConfirmation: (user, order) => sendSafely({
+    to: user.email,
+    subject: `Confirmation de votre commande ${order.orderNumber}`,
+    text: `Bonjour ${user.firstName},\n\nNous avons bien reçu votre commande ${order.orderNumber} :\n`
+      + `- ${order.menuTitle} pour ${order.people} personnes\n`
+      + `- le ${order.date} à ${order.time}, ${order.address}, ${order.postcode} ${order.city}\n`
+      + `- total : ${order.totalPrice.toFixed(2).replace('.', ',')} €\n\n`
+      + `Vous pouvez suivre, modifier ou annuler votre commande tant qu'elle n'est pas acceptée : ${FRONT_URL}/account\n\nJulie et José`,
+  }),
   employeeCreated: (employee) => sendSafely({
     to: employee.email,
     subject: 'Votre compte employé Vite & Gourmand',

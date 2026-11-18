@@ -198,3 +198,12 @@ Collection `menu_stats`, un document par menu, mis à jour à chaque commande :
 ```
 
 Elle alimente le graphique de comparaison des commandes par menu et le calcul du chiffre d'affaires de l'espace administrateur, filtrable par menu et par période. Ces lectures fréquentes ne chargent donc pas la base relationnelle.
+
+**Mise à jour** (`back-end/services/statsService.js`) :
+- nouvelle commande : `ordersCount` +1 et `revenue` + total, sur le menu et sur le jour de la commande (fuseau Europe/Paris) ;
+- commande annulée : elle est retirée (−1, −total) ;
+- commande modifiée : seule la différence de prix est ajoutée au chiffre d'affaires.
+
+Une erreur MongoDB n'annule jamais une commande (elle est seulement journalisée). Si la collection est vide au démarrage de l'API (ex. après `seed.sql`), elle est reconstruite à partir des commandes PostgreSQL ; `npm run stats:rebuild` force cette reconstruction.
+
+Collection `revoked_tokens` : identifiants (`jti`) des jetons de session invalidés par une déconnexion, supprimés automatiquement à leur expiration (index TTL).
