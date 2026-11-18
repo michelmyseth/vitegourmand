@@ -76,6 +76,24 @@ CREATE TABLE app_user (
 -- Emails are unique whatever the case (Jose@... = jose@...)
 CREATE UNIQUE INDEX app_user_email_unique ON app_user (lower(email));
 
+-- An administrator account can only be created by the SQL script (KAN-37):
+-- inserting a user with the admin role, or promoting a user to admin, is refused
+-- unless the script enables it with SET LOCAL app.allow_admin_creation = 'on'.
+CREATE OR REPLACE FUNCTION prevent_admin_creation() RETURNS trigger AS $$
+BEGIN
+  IF NEW.role_id = (SELECT role_id FROM role WHERE label = 'admin')
+     AND (TG_OP = 'INSERT' OR OLD.role_id IS DISTINCT FROM NEW.role_id)
+     AND coalesce(current_setting('app.allow_admin_creation', true), '') <> 'on' THEN
+    RAISE EXCEPTION 'Administrator accounts can only be created by the SQL script';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER app_user_prevent_admin_creation
+  BEFORE INSERT OR UPDATE OF role_id ON app_user
+  FOR EACH ROW EXECUTE FUNCTION prevent_admin_creation();
+
 -- Password reset: only the SHA-256 hash of the token is stored
 CREATE TABLE password_reset_token (
   token_id    INT         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

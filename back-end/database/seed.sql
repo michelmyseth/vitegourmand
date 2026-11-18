@@ -1,7 +1,7 @@
 -- =============================================================
 -- Vite & Gourmand — demo data
 -- Run after schema.sql : psql -U <user> -d vitegourmand -f seed.sql
--- Demo accounts and passwords: see the README.
+-- Demo accounts and passwords are listed above each INSERT and in the README.
 -- =============================================================
 
 SET client_min_messages = warning;
@@ -153,6 +153,23 @@ INSERT INTO menu_image (menu_id, url, alt_text, position)
 SELECT m.menu_id, '/img/menus/couscous.jpg', m.title || ' — photo ' || g.n, g.n
 FROM menu m
 CROSS JOIN generate_series(1, 2) AS g (n);
+
+-- -------------------------------------------------------------
+-- Administrator account (José) — KAN-37
+-- This is the ONLY way to create an administrator: no API route allows it,
+-- and a trigger refuses it unless enabled for this transaction.
+--   jose@vitegourmand.fr / Admin#Jose2026!   (change it after the first login)
+-- -------------------------------------------------------------
+
+SET LOCAL app.allow_admin_creation = 'on';
+
+INSERT INTO app_user (role_id, email, password_hash, last_name, first_name, phone, address, postcode, city, gdpr_consent_at)
+SELECT role_id, 'jose@vitegourmand.fr',
+       '$2b$10$dpyW1zCUrELUISOpUyHHy.nPmMB9RHzE1qmLlh7nvfo7LURKv9y9W',
+       'Gourmand', 'José', '0556000000', '10 quai des Chartrons', '33000', 'Bordeaux', now()
+FROM role WHERE label = 'admin';
+
+SET LOCAL app.allow_admin_creation = 'off';
 
 -- -------------------------------------------------------------
 -- Demo accounts (employee + customers)
