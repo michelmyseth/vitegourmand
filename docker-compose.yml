@@ -1,0 +1,45 @@
+# Vite & Gourmand — local development stack
+# Start everything:  docker compose up -d
+# Full documentation: README.md (section "Lancer le projet avec Docker")
+
+name: vitegourmand
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vitegourmand-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vitegourmand}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vitegourmand}
+      POSTGRES_DB: ${POSTGRES_DB:-vitegourmand}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      # Run once, on the first start (empty volume), in alphabetical order
+      - ./back-end/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./back-end/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:7.0
+    container_name: vitegourmand-mongo
+    restart: unless-stopped
+    ports:
+      - "${MONGO_HOST_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pg-data:
+  mongo-data:
