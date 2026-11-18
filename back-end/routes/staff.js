@@ -4,6 +4,7 @@ const menus = require('../controllers/staffMenuController');
 const dishes = require('../controllers/staffDishController');
 const hours = require('../controllers/staffHoursController');
 const orders = require('../controllers/staffOrderController');
+const reviews = require('../controllers/reviewController');
 const { requireAuth, requireEmployee } = require('../middlewares/auth');
 const { menuImageUpload } = require('../config/upload');
 
@@ -35,5 +36,9 @@ router.delete('/dishes/:id', dishes.remove);
 
 // Opening hours (KAN-59); read by everyone with GET /api/opening-hours
 router.put('/opening-hours', hours.update);
+
+// Reviews moderation (KAN-63)
+router.get('/reviews', reviews.listForModeration); // ?status=pending
+router.put('/reviews/:id', reviews.moderate);
 
 module.exports = router;

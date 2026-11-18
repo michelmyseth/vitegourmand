@@ -19,6 +19,7 @@ import StaffMenus from '@/views/staff/StaffMenus.vue'
 import StaffDishes from '@/views/staff/StaffDishes.vue'
 import StaffHours from '@/views/staff/StaffHours.vue'
 import StaffOrders from '@/views/staff/StaffOrders.vue'
+import StaffReviews from '@/views/staff/StaffReviews.vue'
 import StaffOrderDetail from '@/views/staff/StaffOrderDetail.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
@@ -76,7 +77,8 @@ const routes = [
       { path: 'orders/:id', name: 'StaffOrder', component: StaffOrderDetail },
       { path: 'menus', name: 'StaffMenus', component: StaffMenus },
       { path: 'dishes', name: 'StaffDishes', component: StaffDishes },
-      { path: 'hours', name: 'StaffHours', component: StaffHours }
+      { path: 'hours', name: 'StaffHours', component: StaffHours },
+      { path: 'reviews', name: 'StaffReviews', component: StaffReviews }
     ]
   },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },

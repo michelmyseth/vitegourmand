@@ -10,9 +10,12 @@
         <p>Notre équipe met son savoir-faire au service de chaque prestation : produits frais, respect des règles d'hygiène et de conservation, livraison soignée et écoute de vos besoins.</p>
 
         <h3>Avis clients</h3>
-        <ul class="reviews-list">
-          <li v-for="r in reviews.filter(x => x.validated)" :key="r.id" class="review-item">
-            <strong>{{ r.author }}:</strong> {{ r.text }}
+        <p v-if="!reviews.length" class="no-reviews">Les avis de nos clients arrivent bientôt.</p>
+        <ul v-else class="reviews-list">
+          <li v-for="r in reviews" :key="r.id" class="review-item">
+            <p class="stars" :aria-label="`Note : ${r.rating} sur 5`"><span aria-hidden="true">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span></p>
+            <blockquote>{{ r.comment }}</blockquote>
+            <p class="author">{{ r.author }} — {{ r.menuTitle }}</p>
           </li>
         </ul>
       </div>
@@ -21,16 +24,17 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
+import { ref, onMounted } from 'vue'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
+import { api } from '@/services/http'
 
-// Mock data — replace by API call later (approved reviews only)
-const reviews = [
-  { id:1, author:'Alice', text:'Super service !', validated:true },
-  { id:2, author:'Bob', text:'Très bon repas', validated:true },
-  { id:3, author:'Eve', text:'En attente modération', validated:false }
-]
+// Approved reviews only (moderated by the employees, KAN-63)
+const reviews = ref([])
+onMounted(async () => {
+  reviews.value = await api('/api/reviews').catch(() => [])
+})
 </script>
 
 <style>
@@ -90,6 +94,21 @@ const reviews = [
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   color: #555;
+}
+
+.review-item .stars {
+  color: #b26a00;
+  margin: 0;
+}
+
+.review-item blockquote {
+  font-style: italic;
+  color: #333;
+}
+
+.review-item .author {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
 }
 
 .review-item strong {
