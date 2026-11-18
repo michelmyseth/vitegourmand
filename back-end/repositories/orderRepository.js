@@ -83,4 +83,14 @@ async function findHistory(orderId, db) {
   return rows;
 }
 
-module.exports = { ORDER_FIELDS, CUSTOMER_FIELDS, ORDER_FROM, nextOrderNumber, create, addHistory, findById, findHistory };
+async function findByUser(userId) {
+  const { rows } = await query(
+    `SELECT ${ORDER_FIELDS} ${ORDER_FROM} WHERE o.user_id = $1 ORDER BY o.created_at DESC`,
+    [userId]
+  );
+  return rows;
+}
+
+module.exports = {
+  ORDER_FIELDS, CUSTOMER_FIELDS, ORDER_FROM, nextOrderNumber, create, addHistory, findById, findHistory, findByUser,
+};

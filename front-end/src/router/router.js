@@ -3,7 +3,6 @@ import Home from '@/views/Home.vue'
 import Menus from '@/views/Menus.vue' 
 import Contact from '@/views/Contact.vue'
 import Login from '@/views/Login.vue'
-import Profile from '@/views/Profile.vue'
 import Register from '@/views/Register.vue'
 import Legal from '@/views/Legal.vue'
 import Terms from '@/views/Terms.vue'
@@ -11,6 +10,9 @@ import MenuDetail from '@/views/MenuDetail.vue'
 import Order from '@/views/Order.vue'
 import ForgotPassword from '@/views/ForgotPassword.vue'
 import ResetPassword from '@/views/ResetPassword.vue'
+import AccountLayout from '@/views/account/AccountLayout.vue'
+import AccountOrders from '@/views/account/AccountOrders.vue'
+import AccountOrderDetail from '@/views/account/AccountOrderDetail.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -47,9 +49,12 @@ const routes = [
   },
   {
     path: '/account',
-    name: 'Account',
-    component: Profile,
-    meta: { requiresAuth: true }
+    component: AccountLayout,
+    meta: { requiresAuth: true, roles: ['user'] },
+    children: [
+      { path: '', name: 'Account', component: AccountOrders },
+      { path: 'orders/:id', name: 'AccountOrder', component: AccountOrderDetail }
+    ]
   },
   { path: '/profile', redirect: '/account' },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
