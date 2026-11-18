@@ -16,6 +16,7 @@ import AccountOrderDetail from '@/views/account/AccountOrderDetail.vue'
 import AccountProfile from '@/views/account/AccountProfile.vue'
 import StaffLayout from '@/views/staff/StaffLayout.vue'
 import StaffMenus from '@/views/staff/StaffMenus.vue'
+import StaffDishes from '@/views/staff/StaffDishes.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -68,7 +69,8 @@ const routes = [
     meta: { requiresAuth: true, roles: ['employee', 'admin'] },
     children: [
       { path: '', redirect: '/employee/menus' },
-      { path: 'menus', name: 'StaffMenus', component: StaffMenus }
+      { path: 'menus', name: 'StaffMenus', component: StaffMenus },
+      { path: 'dishes', name: 'StaffDishes', component: StaffDishes }
     ]
   },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
