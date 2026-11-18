@@ -40,21 +40,36 @@
             <div class="grid-2">
               <div class="field">
                 <label for="menu">Menu</label>
-                <select id="menu" v-model.number="form.menuId" :aria-invalid="!!errors.menuId" aria-describedby="menu-err">
+                <select
+                  id="menu"
+                  v-model.number="form.menuId"
+                  :aria-invalid="!!errors.menuId"
+                  aria-describedby="menu-err"
+                >
                   <option :value="null" disabled>Choisir un menu</option>
                   <option v-for="m in menus" :key="m.id" :value="m.id" :disabled="m.stock === 0">
-                    {{ m.title }} — {{ euros(m.price) }} pour {{ m.minPeople }} pers.{{ m.stock === 0 ? ' (épuisé)' : '' }}
+                    {{ m.title }} — {{ euros(m.price) }} pour {{ m.minPeople }} pers.{{
+                      m.stock === 0 ? ' (épuisé)' : ''
+                    }}
                   </option>
                 </select>
                 <p v-if="errors.menuId" id="menu-err" class="err">{{ errors.menuId }}</p>
               </div>
               <div class="field">
                 <label for="people">Nombre de personnes</label>
-                <input id="people" v-model.number="form.people" type="number" inputmode="numeric" :min="menu?.minPeople || 1" step="1" :aria-invalid="!!errors.people" aria-describedby="people-help people-err" />
+                <input
+                  id="people"
+                  v-model.number="form.people"
+                  type="number"
+                  inputmode="numeric"
+                  :min="menu?.minPeople || 1"
+                  step="1"
+                  :aria-invalid="!!errors.people"
+                  aria-describedby="people-help people-err"
+                />
                 <p id="people-help" class="help">
                   <template v-if="menu">
-                    Minimum {{ menu.minPeople }} personnes.
-                    −10 % à partir de {{ menu.minPeople + 5 }} personnes.
+                    Minimum {{ menu.minPeople }} personnes. −10 % à partir de {{ menu.minPeople + 5 }} personnes.
                   </template>
                 </p>
                 <p v-if="errors.people" id="people-err" class="err">{{ errors.people }}</p>
@@ -65,24 +80,47 @@
 
           <fieldset class="order-fieldset">
             <legend>Votre événement</legend>
-            <AddressAutocomplete v-model="address" placeholder="Ex. 12 avenue de la Marne, Mérignac" :error="errors.address">
+            <AddressAutocomplete
+              v-model="address"
+              placeholder="Ex. 12 avenue de la Marne, Mérignac"
+              :error="errors.address"
+            >
               <template #help>{{ deliveryHelp }}</template>
             </AddressAutocomplete>
             <div class="grid-2">
               <div class="field">
                 <label for="date">Date de la prestation</label>
-                <input id="date" v-model="form.date" type="date" :min="minDate" :aria-invalid="!!errors.date" aria-describedby="date-err" />
+                <input
+                  id="date"
+                  v-model="form.date"
+                  type="date"
+                  :min="minDate"
+                  :aria-invalid="!!errors.date"
+                  aria-describedby="date-err"
+                />
                 <p v-if="errors.date" id="date-err" class="err">{{ errors.date }}</p>
               </div>
               <div class="field">
                 <label for="time">Heure de livraison</label>
-                <input id="time" v-model="form.time" type="time" :aria-invalid="!!errors.time" aria-describedby="time-err" />
+                <input
+                  id="time"
+                  v-model="form.time"
+                  type="time"
+                  :aria-invalid="!!errors.time"
+                  aria-describedby="time-err"
+                />
                 <p v-if="errors.time" id="time-err" class="err">{{ errors.time }}</p>
               </div>
             </div>
             <div class="field">
               <label for="place">Précisions sur le lieu <span class="optional">(facultatif)</span></label>
-              <textarea id="place" v-model.trim="form.place" rows="2" maxlength="300" placeholder="Salle, étage, digicode, accès…"></textarea>
+              <textarea
+                id="place"
+                v-model.trim="form.place"
+                rows="2"
+                maxlength="300"
+                placeholder="Salle, étage, digicode, accès…"
+              ></textarea>
             </div>
           </fieldset>
 

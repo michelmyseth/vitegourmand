@@ -38,8 +38,11 @@ describe('employee accounts (KAN-64, KAN-65)', () => {
   test('the admin creates an employee: always the employee role', async () => {
     const admin = await loginAs('admin');
     const res = await admin.post('/api/admin/employees').send({
-      email: `employe.${Date.now()}@vitegourmand.fr`, password: 'Employe#2026!',
-      lastName: 'Nouveau', firstName: 'Paul', role: 'admin',
+      email: `employe.${Date.now()}@vitegourmand.fr`,
+      password: 'Employe#2026!',
+      lastName: 'Nouveau',
+      firstName: 'Paul',
+      role: 'admin',
     });
     expect(res.status).toBe(201);
     expect(JSON.stringify(res.body)).not.toMatch(/Employe#2026!/);

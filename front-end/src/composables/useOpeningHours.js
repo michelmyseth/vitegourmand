@@ -11,8 +11,12 @@ export function useOpeningHours() {
   function load(force = false) {
     if (!loaded || force) {
       loaded = api('/api/opening-hours')
-        .then((h) => { hours.value = h })
-        .catch(() => { loaded = null })
+        .then((h) => {
+          hours.value = h
+        })
+        .catch(() => {
+          loaded = null
+        })
     }
     return loaded
   }

@@ -4,16 +4,24 @@
     <section class="presentation">
       <div class="container">
         <h2>Vite &amp; Gourmand</h2>
-        <p>Depuis 25 ans à Bordeaux, Julie et José imaginent et préparent des menus pour tous vos événements : repas de Noël, Pâques, fêtes de famille ou réceptions. Nos menus évoluent au fil des saisons.</p>
+        <p>
+          Depuis 25 ans à Bordeaux, Julie et José imaginent et préparent des menus pour tous vos événements : repas de
+          Noël, Pâques, fêtes de famille ou réceptions. Nos menus évoluent au fil des saisons.
+        </p>
 
         <h3>Professionnalisme de l'équipe</h3>
-        <p>Notre équipe met son savoir-faire au service de chaque prestation : produits frais, respect des règles d'hygiène et de conservation, livraison soignée et écoute de vos besoins.</p>
+        <p>
+          Notre équipe met son savoir-faire au service de chaque prestation : produits frais, respect des règles
+          d'hygiène et de conservation, livraison soignée et écoute de vos besoins.
+        </p>
 
         <h3>Avis clients</h3>
         <p v-if="!reviews.length" class="no-reviews">Les avis de nos clients arrivent bientôt.</p>
         <ul v-else class="reviews-list">
           <li v-for="r in reviews" :key="r.id" class="review-item">
-            <p class="stars" :aria-label="`Note : ${r.rating} sur 5`"><span aria-hidden="true">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span></p>
+            <p class="stars" :aria-label="`Note : ${r.rating} sur 5`">
+              <span aria-hidden="true">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span>
+            </p>
             <blockquote>{{ r.comment }}</blockquote>
             <p class="author">{{ r.author }} — {{ r.menuTitle }}</p>
           </li>
@@ -92,7 +100,7 @@ onMounted(async () => {
   margin: 8px 0;
   border-left: 4px solid var(--color-primary);
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   color: var(--color-text-muted);
 }
 

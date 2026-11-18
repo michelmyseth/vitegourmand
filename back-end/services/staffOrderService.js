@@ -9,8 +9,14 @@ const { mails } = require('./mailService');
 const { badRequest, notFound, conflict } = require('../utils/httpError');
 
 const STATUSES = [
-  'pending', 'accepted', 'preparing', 'delivering', 'delivered',
-  'awaiting_equipment_return', 'completed', 'cancelled',
+  'pending',
+  'accepted',
+  'preparing',
+  'delivering',
+  'delivered',
+  'awaiting_equipment_return',
+  'completed',
+  'cancelled',
 ];
 
 // Allowed changes of status (KAN-61). Cancelling is done separately (KAN-62).
@@ -26,8 +32,13 @@ const NEXT_STATUSES = {
 };
 
 const LABELS = {
-  pending: 'En attente', accepted: 'Acceptée', preparing: 'En préparation', delivering: 'En cours de livraison',
-  delivered: 'Livrée', awaiting_equipment_return: 'En attente du retour de matériel', completed: 'Terminée',
+  pending: 'En attente',
+  accepted: 'Acceptée',
+  preparing: 'En préparation',
+  delivering: 'En cours de livraison',
+  delivered: 'Livrée',
+  awaiting_equipment_return: 'En attente du retour de matériel',
+  completed: 'Terminée',
   cancelled: 'Annulée',
 };
 

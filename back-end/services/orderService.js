@@ -57,7 +57,8 @@ async function createOrder(user, body) {
   const order = await withTransaction(async (client) => {
     // FOR UPDATE: two orders on the last menu in stock cannot both succeed
     const menu = await menuRepository.findForOrder(menuId, client);
-    if (!menu || !menu.isActive) throw badRequest("Ce menu n'est plus disponible.", { menuId: "Ce menu n'est plus disponible." });
+    if (!menu || !menu.isActive)
+      throw badRequest("Ce menu n'est plus disponible.", { menuId: "Ce menu n'est plus disponible." });
     if (menu.stock <= 0) throw conflict("Ce menu n'est plus disponible (stock épuisé).", { menuId: 'Stock épuisé.' });
     if (fields.people < menu.minPeople) {
       throw badRequest('Nombre de personnes insuffisant.', {
@@ -66,17 +67,20 @@ async function createOrder(user, body) {
     }
 
     const prices = computeOrderPrice(menu, fields.people, delivery);
-    const id = await orderRepository.create({
-      ...fields,
-      ...prices,
-      city: delivery.city || fields.city,
-      postcode: delivery.postcode || fields.postcode,
-      deliveryKm: delivery.km,
-      orderNumber: await orderRepository.nextOrderNumber(client),
-      userId: user.id,
-      menuId,
-      equipmentLoan: false,
-    }, client);
+    const id = await orderRepository.create(
+      {
+        ...fields,
+        ...prices,
+        city: delivery.city || fields.city,
+        postcode: delivery.postcode || fields.postcode,
+        deliveryKm: delivery.km,
+        orderNumber: await orderRepository.nextOrderNumber(client),
+        userId: user.id,
+        menuId,
+        equipmentLoan: false,
+      },
+      client,
+    );
 
     await menuRepository.changeStock(menuId, -1, client);
     await orderRepository.addHistory(id, 'pending', { changedBy: user.id }, client);
@@ -132,9 +136,16 @@ async function editOrder(orderId, body, actor, check, log = null) {
     check(locked); // the status may have changed meanwhile
     await orderRepository.updateEvent(orderId, { ...fields, ...prices }, client);
     if (log) {
-      await orderRepository.addHistory(orderId, locked.status, {
-        changedBy: actor.id, contactMethod: log.contactMethod, reason: `Modification : ${log.reason}`,
-      }, client);
+      await orderRepository.addHistory(
+        orderId,
+        locked.status,
+        {
+          changedBy: actor.id,
+          contactMethod: log.contactMethod,
+          reason: `Modification : ${log.reason}`,
+        },
+        client,
+      );
     }
     return orderRepository.findById(orderId, {}, client);
   });
@@ -152,9 +163,16 @@ async function cancelOrder(orderId, actor, check, log = {}) {
     check(locked);
     await orderRepository.updateStatus(orderId, 'cancelled', client);
     await menuRepository.changeStock(locked.menuId, 1, client);
-    await orderRepository.addHistory(orderId, 'cancelled', {
-      changedBy: actor.id, contactMethod: log.contactMethod || null, reason: log.reason || null,
-    }, client);
+    await orderRepository.addHistory(
+      orderId,
+      'cancelled',
+      {
+        changedBy: actor.id,
+        contactMethod: log.contactMethod || null,
+        reason: log.reason || null,
+      },
+      client,
+    );
     return orderRepository.findById(orderId, {}, client);
   });
   statsService.cancelOrder(order);
@@ -167,7 +185,9 @@ function customerCheck(user) {
     if (!order || order.userId !== user.id) throw notFound('Commande introuvable.');
     if (order.status === 'cancelled') throw conflict('Cette commande est déjà annulée.');
     if (order.status !== 'pending') {
-      throw conflict('Cette commande a déjà été acceptée : elle ne peut plus être modifiée ni annulée. Contactez-nous.');
+      throw conflict(
+        'Cette commande a déjà été acceptée : elle ne peut plus être modifiée ni annulée. Contactez-nous.',
+      );
     }
   };
 }
@@ -176,6 +196,14 @@ const editMyOrder = (user, orderId, body) => editOrder(orderId, body, user, cust
 const cancelMyOrder = (user, orderId) => cancelOrder(orderId, user, customerCheck(user));
 
 module.exports = {
-  createOrder, listMyOrders, getMyOrder, editMyOrder, cancelMyOrder,
-  editOrder, cancelOrder, readEventFields, quote, tomorrow,
+  createOrder,
+  listMyOrders,
+  getMyOrder,
+  editMyOrder,
+  cancelMyOrder,
+  editOrder,
+  cancelOrder,
+  readEventFields,
+  quote,
+  tomorrow,
 };

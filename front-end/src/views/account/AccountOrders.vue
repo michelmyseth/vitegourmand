@@ -11,7 +11,9 @@
 
     <div v-else class="table-wrap">
       <table class="data-table">
-        <caption class="sr-only">Liste de mes commandes</caption>
+        <caption class="sr-only">
+          Liste de mes commandes
+        </caption>
         <thead>
           <tr>
             <th scope="col">N°</th>

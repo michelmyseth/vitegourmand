@@ -9,7 +9,7 @@ async function create({ orderId, userId, rating, comment }) {
   const { rows } = await query(
     `INSERT INTO review (order_id, user_id, rating, comment) VALUES ($1, $2, $3, $4)
      RETURNING review_id AS id, order_id AS "orderId", rating, comment, status, created_at AS "createdAt"`,
-    [orderId, userId, rating, comment]
+    [orderId, userId, rating, comment],
   );
   return rows[0];
 }
@@ -31,7 +31,7 @@ async function findApproved(limit = 20) {
      WHERE r.status = 'approved'
      ORDER BY r.created_at DESC
      LIMIT $1`,
-    [limit]
+    [limit],
   );
   return rows;
 }
@@ -49,7 +49,7 @@ async function findForModeration(status) {
      LEFT JOIN app_user e ON e.user_id = r.moderated_by
      WHERE $1::varchar IS NULL OR r.status = $1
      ORDER BY (r.status = 'pending') DESC, r.created_at DESC`,
-    [status || null]
+    [status || null],
   );
   return rows;
 }
@@ -58,7 +58,7 @@ async function moderate(id, status, moderatorId) {
   const { rows } = await query(
     `UPDATE review SET status = $2, moderated_by = $3, moderated_at = now()
      WHERE review_id = $1 RETURNING review_id AS id, status`,
-    [id, status, moderatorId]
+    [id, status, moderatorId],
   );
   return rows[0] || null;
 }

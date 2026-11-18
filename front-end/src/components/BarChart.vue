@@ -33,14 +33,16 @@ function render() {
     type: 'bar',
     data: {
       labels: props.labels,
-      datasets: [{
-        data: props.values,
-        backgroundColor: cssColor('--color-primary'),
-        hoverBackgroundColor: cssColor('--color-primary-dark'),
-        borderRadius: 4,
-        borderSkipped: 'start',
-        maxBarThickness: 24
-      }]
+      datasets: [
+        {
+          data: props.values,
+          backgroundColor: cssColor('--color-primary'),
+          hoverBackgroundColor: cssColor('--color-primary-dark'),
+          borderRadius: 4,
+          borderSkipped: 'start',
+          maxBarThickness: 24
+        }
+      ]
     },
     options: {
       indexAxis: 'y',
@@ -55,7 +57,11 @@ function render() {
           beginAtZero: true,
           grid: { color: cssColor('--color-line') },
           border: { display: false },
-          ticks: { color: cssColor('--color-text-muted'), precision: props.integer ? 0 : undefined, callback: (v) => props.format(v) }
+          ticks: {
+            color: cssColor('--color-text-muted'),
+            precision: props.integer ? 0 : undefined,
+            callback: (v) => props.format(v)
+          }
         },
         y: { grid: { display: false }, ticks: { color: cssColor('--color-text') } }
       }

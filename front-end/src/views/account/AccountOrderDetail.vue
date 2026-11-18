@@ -6,9 +6,7 @@
     <p v-else-if="error" class="alert alert-error" role="alert">{{ error }}</p>
 
     <template v-else>
-      <h2 id="order-title" class="title">
-        Commande {{ order.orderNumber }} <StatusBadge :status="order.status" />
-      </h2>
+      <h2 id="order-title" class="title">Commande {{ order.orderNumber }} <StatusBadge :status="order.status" /></h2>
       <p v-if="message" class="alert alert-success" role="status">{{ message }}</p>
 
       <div class="columns">
@@ -28,7 +26,9 @@
           <div v-if="order.review" class="panel">
             <h3>Mon avis</h3>
             <p class="rating" :aria-label="`${order.review.rating} sur 5`">
-              <span aria-hidden="true">{{ '★'.repeat(order.review.rating) }}{{ '☆'.repeat(5 - order.review.rating) }}</span>
+              <span aria-hidden="true"
+                >{{ '★'.repeat(order.review.rating) }}{{ '☆'.repeat(5 - order.review.rating) }}</span
+              >
             </p>
             <p>{{ order.review.comment }}</p>
             <p class="help">{{ REVIEW_STATUS[order.review.status] }}</p>

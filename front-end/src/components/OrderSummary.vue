@@ -3,15 +3,32 @@
     <h2 id="summary-title" ref="titleEl" tabindex="-1">Récapitulatif de votre commande</h2>
 
     <dl class="info">
-      <div><dt>Client</dt><dd>{{ order.firstName }} {{ order.lastName }} — {{ order.email }} — {{ order.phone }}</dd></div>
-      <div><dt>Menu</dt><dd>{{ menu.title }}</dd></div>
-      <div><dt>Personnes</dt><dd>{{ order.people }}</dd></div>
-      <div><dt>Livraison</dt><dd>{{ formattedDate }} à {{ order.time }}<br />{{ address.label }}</dd></div>
-      <div v-if="order.place"><dt>Précisions</dt><dd>{{ order.place }}</dd></div>
+      <div>
+        <dt>Client</dt>
+        <dd>{{ order.firstName }} {{ order.lastName }} — {{ order.email }} — {{ order.phone }}</dd>
+      </div>
+      <div>
+        <dt>Menu</dt>
+        <dd>{{ menu.title }}</dd>
+      </div>
+      <div>
+        <dt>Personnes</dt>
+        <dd>{{ order.people }}</dd>
+      </div>
+      <div>
+        <dt>Livraison</dt>
+        <dd>{{ formattedDate }} à {{ order.time }}<br />{{ address.label }}</dd>
+      </div>
+      <div v-if="order.place">
+        <dt>Précisions</dt>
+        <dd>{{ order.place }}</dd>
+      </div>
     </dl>
 
     <table class="prices">
-      <caption class="sr-only">Détail du prix</caption>
+      <caption class="sr-only">
+        Détail du prix
+      </caption>
       <tbody>
         <tr>
           <th scope="row">Menu ({{ order.people }} × {{ formatEuros(price.pricePerPersonCents) }})</th>
@@ -66,7 +83,10 @@ defineEmits(['back', 'confirm'])
 
 const formattedDate = computed(() =>
   new Date(`${props.order.date}T00:00`).toLocaleDateString('fr-FR', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
   })
 )
 

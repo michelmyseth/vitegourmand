@@ -6,9 +6,7 @@
     <p v-else-if="error" class="alert alert-error" role="alert">{{ error }}</p>
 
     <template v-else>
-      <h2 id="order-title" class="title">
-        Commande {{ order.orderNumber }} <StatusBadge :status="order.status" />
-      </h2>
+      <h2 id="order-title" class="title">Commande {{ order.orderNumber }} <StatusBadge :status="order.status" /></h2>
       <p v-if="message" class="alert alert-success" role="status">{{ message }}</p>
 
       <div class="columns">
@@ -35,15 +33,17 @@
               </button>
             </div>
             <p v-if="order.status === 'delivered'" class="help">
-              Choisissez « {{ STATUS_LABELS.awaiting_equipment_return }} » si du matériel a été prêté :
-              le client est prévenu par email (restitution sous 10 jours ouvrés, sinon 600 € de frais).
+              Choisissez « {{ STATUS_LABELS.awaiting_equipment_return }} » si du matériel a été prêté : le client est
+              prévenu par email (restitution sous 10 jours ouvrés, sinon 600 € de frais).
             </p>
           </div>
 
           <!-- KAN-62: edit / cancel after contacting the customer -->
           <div v-if="EDITABLE.includes(order.status)" class="panel">
             <h3>Modifier ou annuler</h3>
-            <p class="help">Contactez d'abord le client par téléphone ou par email, puis indiquez le mode de contact et le motif.</p>
+            <p class="help">
+              Contactez d'abord le client par téléphone ou par email, puis indiquez le mode de contact et le motif.
+            </p>
 
             <OrderEditForm
               v-if="mode === 'edit'"
@@ -58,13 +58,23 @@
               <p v-if="cancelError" class="alert alert-error" role="alert">{{ cancelError }}</p>
               <fieldset class="field contact">
                 <legend class="label">Client contacté par</legend>
-                <label class="inline"><input v-model="cancelForm.contactMethod" type="radio" value="phone" /> Téléphone</label>
-                <label class="inline"><input v-model="cancelForm.contactMethod" type="radio" value="email" /> Email</label>
+                <label class="inline"
+                  ><input v-model="cancelForm.contactMethod" type="radio" value="phone" /> Téléphone</label
+                >
+                <label class="inline"
+                  ><input v-model="cancelForm.contactMethod" type="radio" value="email" /> Email</label
+                >
                 <p v-if="cancelErrors.contactMethod" class="err">{{ cancelErrors.contactMethod }}</p>
               </fieldset>
               <div class="field">
                 <label for="cancel-reason">Motif de l'annulation</label>
-                <textarea id="cancel-reason" v-model.trim="cancelForm.reason" rows="3" maxlength="500" :aria-invalid="!!cancelErrors.reason"></textarea>
+                <textarea
+                  id="cancel-reason"
+                  v-model.trim="cancelForm.reason"
+                  rows="3"
+                  maxlength="500"
+                  :aria-invalid="!!cancelErrors.reason"
+                ></textarea>
                 <p v-if="cancelErrors.reason" class="err">{{ cancelErrors.reason }}</p>
               </div>
               <div class="buttons">

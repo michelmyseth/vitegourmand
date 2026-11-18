@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import Menus from '@/views/Menus.vue' 
+import Menus from '@/views/Menus.vue'
 import Contact from '@/views/Contact.vue'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
@@ -36,7 +36,7 @@ const routes = [
     name: 'Menus',
     component: Menus
   },
-    {
+  {
     path: '/menus/:id',
     name: 'MenuDetail',
     component: MenuDetail
@@ -97,8 +97,8 @@ const routes = [
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
   {
-    path: "/register",
-    name: "Register",
+    path: '/register',
+    name: 'Register',
     component: Register
   },
   {
@@ -129,6 +129,5 @@ router.beforeEach(async (to) => {
   if (to.meta.roles && !to.meta.roles.includes(user.role)) return { path: homeForRole(user.role) }
   return true
 })
-
 
 export default router

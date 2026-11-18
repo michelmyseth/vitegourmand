@@ -3,29 +3,28 @@
     <Header />
     <main>
       <h1>Contactez-nous</h1>
-    <form @submit.prevent="sendMessage">
-      <div class="form-group">
-        <label for="name">Nom :</label>
-        <input id="name" v-model="name" type="text" required />
-      </div>
+      <form @submit.prevent="sendMessage">
+        <div class="form-group">
+          <label for="name">Nom :</label>
+          <input id="name" v-model="name" type="text" required />
+        </div>
 
-      <div class="form-group">
-        <label for="email">Email :</label>
-        <input id="email" v-model="email" type="email" required />
-      </div>
+        <div class="form-group">
+          <label for="email">Email :</label>
+          <input id="email" v-model="email" type="email" required />
+        </div>
 
-      <div class="form-group">
-        <label for="message">Message :</label>
-        <textarea id="message" v-model="message" required></textarea>
-      </div>
+        <div class="form-group">
+          <label for="message">Message :</label>
+          <textarea id="message" v-model="message" required></textarea>
+        </div>
 
-      <button type="submit">Envoyer</button>
-    </form>
+        <button type="submit">Envoyer</button>
+      </form>
 
-    <p v-if="success" class="success-message">Message envoyé avec succès !</p>
+      <p v-if="success" class="success-message">Message envoyé avec succès !</p>
     </main>
-            <Footer />
-
+    <Footer />
   </div>
 </template>
 
@@ -48,7 +47,7 @@ const sendMessage = () => {
   message.value = ''
   success.value = true
 
-  setTimeout(() => success.value = false, 3000)
+  setTimeout(() => (success.value = false), 3000)
 }
 </script>
 
@@ -76,7 +75,8 @@ main {
   margin-bottom: 15px;
 }
 
-input, textarea {
+input,
+textarea {
   width: 100%;
   padding: 8px;
   box-sizing: border-box;
@@ -92,5 +92,4 @@ button {
   color: green;
   font-weight: bold;
 }
-
 </style>

@@ -57,8 +57,13 @@ function onInput() {
 function pick(s) {
   // address/postcode/city are sent to the API; the rest is used for the delivery distance
   const value = {
-    address: s.street, postcode: s.postcode, city: s.city,
-    label: s.label, citycode: s.citycode, lon: s.lon, lat: s.lat
+    address: s.street,
+    postcode: s.postcode,
+    city: s.city,
+    label: s.label,
+    citycode: s.citycode,
+    lon: s.lon,
+    lat: s.lat
   }
   text.value = s.label
   suggestions.value = []

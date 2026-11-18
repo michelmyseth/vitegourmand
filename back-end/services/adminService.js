@@ -25,12 +25,20 @@ async function createEmployee(body) {
     throw conflict('Un compte existe déjà avec cet email.', { email: 'Un compte existe déjà avec cet email.' });
   }
 
-  const id = await userRepository.create({
-    email, lastName, firstName,
-    passwordHash: await hashPassword(password),
-    // Contact details of the company: employees do not order
-    phone: '0556000000', address: '10 quai des Chartrons', postcode: '33000', city: 'Bordeaux',
-  }, 'employee');
+  const id = await userRepository.create(
+    {
+      email,
+      lastName,
+      firstName,
+      passwordHash: await hashPassword(password),
+      // Contact details of the company: employees do not order
+      phone: '0556000000',
+      address: '10 quai des Chartrons',
+      postcode: '33000',
+      city: 'Bordeaux',
+    },
+    'employee',
+  );
 
   const employee = await userRepository.findById(id);
   mails.employeeCreated(employee);

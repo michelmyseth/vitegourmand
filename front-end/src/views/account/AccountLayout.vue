@@ -5,7 +5,11 @@
       <div class="container">
         <h1>Mon espace</h1>
         <nav class="tabs" aria-label="Mon espace">
-          <router-link to="/account" exact-active-class="active" :class="{ active: route.path.startsWith('/account/orders') }">
+          <router-link
+            to="/account"
+            exact-active-class="active"
+            :class="{ active: route.path.startsWith('/account/orders') }"
+          >
             Mes commandes
           </router-link>
           <router-link to="/account/profile" active-class="active">Mes informations</router-link>
