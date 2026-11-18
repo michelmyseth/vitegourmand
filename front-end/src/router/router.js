@@ -17,6 +17,7 @@ import AccountProfile from '@/views/account/AccountProfile.vue'
 import StaffLayout from '@/views/staff/StaffLayout.vue'
 import StaffMenus from '@/views/staff/StaffMenus.vue'
 import StaffDishes from '@/views/staff/StaffDishes.vue'
+import StaffHours from '@/views/staff/StaffHours.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -70,7 +71,8 @@ const routes = [
     children: [
       { path: '', redirect: '/employee/menus' },
       { path: 'menus', name: 'StaffMenus', component: StaffMenus },
-      { path: 'dishes', name: 'StaffDishes', component: StaffDishes }
+      { path: 'dishes', name: 'StaffDishes', component: StaffDishes },
+      { path: 'hours', name: 'StaffHours', component: StaffHours }
     ]
   },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },

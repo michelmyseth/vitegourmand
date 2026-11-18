@@ -3,9 +3,9 @@
     <div class="hours">
       <h2>Horaires</h2>
       <dl>
-        <div v-for="h in hours" :key="h.day" class="hours-row">
-          <dt>{{ h.day }}</dt>
-          <dd>{{ h.closed ? 'Fermé' : `${h.open} - ${h.close}` }}</dd>
+        <div v-for="h in hours" :key="h.dayOfWeek" class="hours-row">
+          <dt>{{ DAY_NAMES[h.dayOfWeek - 1] }}</dt>
+          <dd>{{ h.isClosed ? 'Fermé' : `${h.openTime} - ${h.closeTime}` }}</dd>
         </div>
       </dl>
     </div>
@@ -18,16 +18,12 @@
 </template>
 
 <script setup>
-// Mock data — replace by API call later (hours editable by employees)
-const hours = [
-  { day: 'Lundi', open: '09:00', close: '20:00' },
-  { day: 'Mardi', open: '09:00', close: '20:00' },
-  { day: 'Mercredi', open: '09:00', close: '20:00' },
-  { day: 'Jeudi', open: '09:00', close: '20:00' },
-  { day: 'Vendredi', open: '09:00', close: '20:00' },
-  { day: 'Samedi', open: '09:00', close: '20:00' },
-  { day: 'Dimanche', open: '09:00', close: '20:00' }
-]
+import { onMounted } from 'vue'
+import { useOpeningHours, DAY_NAMES } from '@/composables/useOpeningHours'
+
+// Opening hours from the database, edited in the employee area (KAN-59)
+const { hours, load } = useOpeningHours()
+onMounted(() => load())
 </script>
 
 <style scoped>
