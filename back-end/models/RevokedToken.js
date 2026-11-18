@@ -7,7 +7,7 @@ const revokedTokenSchema = new mongoose.Schema(
     jti: { type: String, required: true, unique: true },
     expiresAt: { type: Date, required: true, index: { expires: 0 } },
   },
-  { collection: 'revoked_tokens', versionKey: false }
+  { collection: 'revoked_tokens', versionKey: false },
 );
 
 module.exports = mongoose.model('RevokedToken', revokedTokenSchema);

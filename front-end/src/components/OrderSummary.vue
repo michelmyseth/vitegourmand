@@ -3,15 +3,32 @@
     <h2 id="summary-title" ref="titleEl" tabindex="-1">Récapitulatif de votre commande</h2>
 
     <dl class="info">
-      <div><dt>Client</dt><dd>{{ order.firstName }} {{ order.lastName }} — {{ order.email }} — {{ order.phone }}</dd></div>
-      <div><dt>Menu</dt><dd>{{ menu.title }}</dd></div>
-      <div><dt>Personnes</dt><dd>{{ order.people }}</dd></div>
-      <div><dt>Livraison</dt><dd>{{ formattedDate }} à {{ order.time }}<br />{{ address.label }}</dd></div>
-      <div v-if="order.place"><dt>Précisions</dt><dd>{{ order.place }}</dd></div>
+      <div>
+        <dt>Client</dt>
+        <dd>{{ order.firstName }} {{ order.lastName }} — {{ order.email }} — {{ order.phone }}</dd>
+      </div>
+      <div>
+        <dt>Menu</dt>
+        <dd>{{ menu.title }}</dd>
+      </div>
+      <div>
+        <dt>Personnes</dt>
+        <dd>{{ order.people }}</dd>
+      </div>
+      <div>
+        <dt>Livraison</dt>
+        <dd>{{ formattedDate }} à {{ order.time }}<br />{{ address.label }}</dd>
+      </div>
+      <div v-if="order.place">
+        <dt>Précisions</dt>
+        <dd>{{ order.place }}</dd>
+      </div>
     </dl>
 
     <table class="prices">
-      <caption class="sr-only">Détail du prix</caption>
+      <caption class="sr-only">
+        Détail du prix
+      </caption>
       <tbody>
         <tr>
           <th scope="row">Menu ({{ order.people }} × {{ formatEuros(price.pricePerPersonCents) }})</th>
@@ -66,7 +83,10 @@ defineEmits(['back', 'confirm'])
 
 const formattedDate = computed(() =>
   new Date(`${props.order.date}T00:00`).toLocaleDateString('fr-FR', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
   })
 )
 
@@ -78,7 +98,7 @@ onMounted(() => titleEl.value?.focus())
 <style scoped>
 .summary {
   background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 20px;
 }
@@ -92,7 +112,7 @@ onMounted(() => titleEl.value?.focus())
   grid-template-columns: 130px 1fr;
   gap: 8px;
   padding: 6px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .info dt {
@@ -113,7 +133,7 @@ onMounted(() => titleEl.value?.focus())
 .prices th,
 .prices td {
   padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .prices td {
@@ -123,12 +143,12 @@ onMounted(() => titleEl.value?.focus())
 }
 
 .detail {
-  color: #555;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .discount {
-  color: #1b5e20;
+  color: var(--color-primary-dark);
 }
 
 .prices tfoot th,
@@ -136,7 +156,7 @@ onMounted(() => titleEl.value?.focus())
   font-weight: bold;
   font-size: 1.2rem;
   border-bottom: none;
-  border-top: 2px solid #333;
+  border-top: 2px solid var(--color-text);
 }
 
 .conditions {
@@ -162,11 +182,11 @@ onMounted(() => titleEl.value?.focus())
 }
 
 .primary {
-  background: #2e7d32;
+  background: var(--color-primary);
 }
 
 .primary:hover {
-  background: #1b5e20;
+  background: var(--color-primary-dark);
 }
 
 .primary:disabled {
@@ -176,16 +196,16 @@ onMounted(() => titleEl.value?.focus())
 
 .secondary {
   background: #fff;
-  color: #2e7d32;
-  border: 2px solid #2e7d32;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
 }
 
 .secondary:hover {
-  background: #e8f5e9;
+  background: var(--color-primary-light);
 }
 
 button:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

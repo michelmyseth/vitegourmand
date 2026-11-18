@@ -8,7 +8,9 @@
 
     <form v-if="days.length" class="panel narrow" novalidate @submit.prevent="save">
       <table class="data-table">
-        <caption class="sr-only">Horaires par jour</caption>
+        <caption class="sr-only">
+          Horaires par jour
+        </caption>
         <thead>
           <tr>
             <th scope="col">Jour</th>
@@ -24,16 +26,30 @@
               <input v-model="d.isClosed" type="checkbox" :aria-label="`${DAY_NAMES[d.dayOfWeek - 1]} : fermé`" />
             </td>
             <td>
-              <input v-model="d.openTime" type="time" :disabled="d.isClosed" :aria-label="`${DAY_NAMES[d.dayOfWeek - 1]} : ouverture`" :aria-invalid="!!errors[d.dayOfWeek]" />
+              <input
+                v-model="d.openTime"
+                type="time"
+                :disabled="d.isClosed"
+                :aria-label="`${DAY_NAMES[d.dayOfWeek - 1]} : ouverture`"
+                :aria-invalid="!!errors[d.dayOfWeek]"
+              />
             </td>
             <td>
-              <input v-model="d.closeTime" type="time" :disabled="d.isClosed" :aria-label="`${DAY_NAMES[d.dayOfWeek - 1]} : fermeture`" :aria-invalid="!!errors[d.dayOfWeek]" />
+              <input
+                v-model="d.closeTime"
+                type="time"
+                :disabled="d.isClosed"
+                :aria-label="`${DAY_NAMES[d.dayOfWeek - 1]} : fermeture`"
+                :aria-invalid="!!errors[d.dayOfWeek]"
+              />
               <p v-if="errors[d.dayOfWeek]" class="err">{{ errors[d.dayOfWeek] }}</p>
             </td>
           </tr>
         </tbody>
       </table>
-      <p class="submit"><button type="submit" class="btn" :disabled="saving">{{ saving ? 'Enregistrement…' : 'Enregistrer' }}</button></p>
+      <p class="submit">
+        <button type="submit" class="btn" :disabled="saving">{{ saving ? 'Enregistrement…' : 'Enregistrer' }}</button>
+      </p>
     </form>
   </section>
 </template>
@@ -53,7 +69,9 @@ const saving = ref(false)
 onMounted(async () => {
   try {
     days.value = (await api('/api/opening-hours')).map((d) => ({
-      ...d, openTime: d.openTime || '09:00', closeTime: d.closeTime || '18:00'
+      ...d,
+      openTime: d.openTime || '09:00',
+      closeTime: d.closeTime || '18:00'
     }))
   } catch (err) {
     error.value = err.message

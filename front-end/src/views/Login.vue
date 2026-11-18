@@ -30,7 +30,10 @@
 
         <p class="switch">
           Pas encore de compte ?
-          <router-link :to="{ path: '/register', query: route.query.redirect ? { redirect: route.query.redirect } : {} }" class="link">
+          <router-link
+            :to="{ path: '/register', query: route.query.redirect ? { redirect: route.query.redirect } : {} }"
+            class="link"
+          >
             Créer un compte
           </router-link>
         </p>
@@ -91,7 +94,7 @@ async function login() {
 
 form {
   background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 20px;
 }

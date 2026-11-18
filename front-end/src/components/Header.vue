@@ -36,12 +36,19 @@ const route = useRoute()
 const router = useRouter()
 const open = ref(false)
 
-const spaceLabel = computed(() => ({ admin: 'Espace admin', employee: 'Espace employé' })[user.value?.role] || 'Mon espace')
+const spaceLabel = computed(
+  () => ({ admin: 'Espace admin', employee: 'Espace employé' })[user.value?.role] || 'Mon espace'
+)
 
 onMounted(fetchUser)
 
 // Close the mobile menu after navigating
-watch(() => route.fullPath, () => { open.value = false })
+watch(
+  () => route.fullPath,
+  () => {
+    open.value = false
+  }
+)
 
 async function onLogout() {
   await logout()
@@ -57,7 +64,7 @@ async function onLogout() {
   justify-content: space-between;
   padding: 24px 40px;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .navbar-title {
@@ -79,13 +86,13 @@ async function onLogout() {
 }
 
 .navbar-links a.router-link-exact-active {
-  color: #2e7d32;
+  color: var(--color-primary);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
 .navbar-links .navbar-btn {
-  background: #2e7d32;
+  background: var(--color-primary);
   color: #fff;
   border: none;
   padding: 8px 20px;
@@ -96,12 +103,12 @@ async function onLogout() {
 }
 
 .navbar-links .navbar-btn:hover {
-  background: #1b5e20;
+  background: var(--color-primary-dark);
 }
 
 .navbar a:focus-visible,
 .navbar button:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -141,7 +148,7 @@ async function onLogout() {
     align-items: stretch;
     gap: 0;
     background: #fff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   }
 
   .navbar-links.open {
@@ -151,7 +158,7 @@ async function onLogout() {
   .navbar-links a,
   .navbar-links .navbar-btn {
     padding: 14px 16px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-line);
     border-radius: 0;
     text-align: left;
   }

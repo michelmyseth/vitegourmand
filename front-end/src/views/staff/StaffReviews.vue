@@ -21,19 +21,28 @@
     <ul v-else class="reviews">
       <li v-for="r in reviews" :key="r.id" class="panel">
         <div class="top">
-          <p class="stars" :aria-label="`${r.rating} sur 5`"><span aria-hidden="true">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span></p>
+          <p class="stars" :aria-label="`${r.rating} sur 5`">
+            <span aria-hidden="true">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span>
+          </p>
           <span class="status-badge">{{ LABELS[r.status] }}</span>
         </div>
         <blockquote>{{ r.comment }}</blockquote>
         <p class="help">
           {{ r.author }} — {{ r.menuTitle }} (commande {{ r.orderNumber }}) — {{ formatDateTime(r.createdAt) }}
-          <template v-if="r.moderatedBy"><br />Modéré par {{ r.moderatedBy }} le {{ formatDateTime(r.moderatedAt) }}</template>
+          <template v-if="r.moderatedBy"
+            ><br />Modéré par {{ r.moderatedBy }} le {{ formatDateTime(r.moderatedAt) }}</template
+          >
         </p>
         <div class="buttons">
           <button v-if="r.status !== 'approved'" type="button" class="btn btn-small" @click="moderate(r, 'approved')">
             Valider<span class="sr-only"> l'avis de {{ r.author }}</span>
           </button>
-          <button v-if="r.status !== 'rejected'" type="button" class="btn btn-danger btn-small" @click="moderate(r, 'rejected')">
+          <button
+            v-if="r.status !== 'rejected'"
+            type="button"
+            class="btn btn-danger btn-small"
+            @click="moderate(r, 'rejected')"
+          >
             Refuser<span class="sr-only"> l'avis de {{ r.author }}</span>
           </button>
         </div>

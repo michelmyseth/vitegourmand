@@ -20,7 +20,14 @@
         </div>
         <div class="field">
           <label for="m-price">Prix (€) pour le nombre minimum de personnes</label>
-          <input id="m-price" v-model.number="form.price" type="number" min="0" step="0.01" :aria-invalid="!!errors.price" />
+          <input
+            id="m-price"
+            v-model.number="form.price"
+            type="number"
+            min="0"
+            step="0.01"
+            :aria-invalid="!!errors.price"
+          />
           <p v-if="errors.price" class="err">{{ errors.price }}</p>
         </div>
       </div>
@@ -93,7 +100,13 @@
           </li>
         </ul>
         <label for="m-image">Ajouter une image (JPEG, PNG ou WebP, 2 Mo max.)</label>
-        <input id="m-image" type="file" accept="image/jpeg,image/png,image/webp" :disabled="uploading" @change="upload" />
+        <input
+          id="m-image"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          :disabled="uploading"
+          @change="upload"
+        />
         <p v-if="uploading" class="help">Envoi…</p>
       </fieldset>
       <p v-else class="help">Les images pourront être ajoutées après l'enregistrement du menu.</p>
@@ -108,7 +121,9 @@
     <div v-else class="table-wrap">
       <p v-if="loading" aria-busy="true">Chargement…</p>
       <table v-else class="data-table">
-        <caption class="sr-only">Liste des menus</caption>
+        <caption class="sr-only">
+          Liste des menus
+        </caption>
         <thead>
           <tr>
             <th scope="col">Titre</th>
@@ -155,8 +170,17 @@ const COURSES = [
   { key: 'dessert', label: 'Desserts' }
 ]
 const EMPTY = {
-  id: null, title: '', description: '', themeId: null, dietId: null, minPeople: 2, price: null,
-  conditions: '', stock: 10, isActive: true, dishIds: []
+  id: null,
+  title: '',
+  description: '',
+  themeId: null,
+  dietId: null,
+  minPeople: 2,
+  price: null,
+  conditions: '',
+  stock: 10,
+  isActive: true,
+  dishIds: []
 }
 
 const menus = ref([])
@@ -191,7 +215,9 @@ onMounted(async () => {
   load()
   try {
     ;[dishes.value, themes.value, diets.value] = await Promise.all([
-      api('/api/staff/dishes'), api('/api/themes'), api('/api/diets')
+      api('/api/staff/dishes'),
+      api('/api/themes'),
+      api('/api/diets')
     ])
   } catch (err) {
     error.value = err.message
@@ -219,8 +245,16 @@ async function startEdit(id) {
     original.value = m
     images.value = m.images
     Object.assign(form, {
-      id: m.id, title: m.title, description: m.description, themeId: m.themeId, dietId: m.dietId,
-      minPeople: m.minPeople, price: m.price, conditions: m.conditions, stock: m.stock, isActive: m.isActive,
+      id: m.id,
+      title: m.title,
+      description: m.description,
+      themeId: m.themeId,
+      dietId: m.dietId,
+      minPeople: m.minPeople,
+      price: m.price,
+      conditions: m.conditions,
+      stock: m.stock,
+      isActive: m.isActive,
       dishIds: [...m.dishes.starters, ...m.dishes.mains, ...m.dishes.desserts].map((d) => d.id)
     })
     openForm()
@@ -314,7 +348,7 @@ async function remove(m) {
 }
 
 fieldset.field {
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 10px 14px;
 }

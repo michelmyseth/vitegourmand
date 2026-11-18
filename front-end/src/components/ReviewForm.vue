@@ -15,8 +15,17 @@
 
     <div class="field">
       <label for="review-comment">Votre commentaire</label>
-      <textarea id="review-comment" v-model.trim="comment" rows="4" maxlength="1000" :aria-invalid="!!errors.comment" aria-describedby="review-help"></textarea>
-      <p id="review-help" class="help">{{ comment.length }} / 1000 caractères. Votre avis sera publié après validation par notre équipe.</p>
+      <textarea
+        id="review-comment"
+        v-model.trim="comment"
+        rows="4"
+        maxlength="1000"
+        :aria-invalid="!!errors.comment"
+        aria-describedby="review-help"
+      ></textarea>
+      <p id="review-help" class="help">
+        {{ comment.length }} / 1000 caractères. Votre avis sera publié après validation par notre équipe.
+      </p>
       <p v-if="errors.comment" class="err">{{ errors.comment }}</p>
     </div>
 
@@ -78,7 +87,7 @@ async function send() {
 }
 
 .stars input:focus-visible + label {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 </style>

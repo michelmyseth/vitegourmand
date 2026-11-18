@@ -14,7 +14,7 @@ const DISH_SELECT = `
 async function findAll() {
   const { rows } = await query(
     `${DISH_SELECT} GROUP BY d.dish_id
-     ORDER BY CASE d.course WHEN 'starter' THEN 1 WHEN 'main' THEN 2 ELSE 3 END, d.name`
+     ORDER BY CASE d.course WHEN 'starter' THEN 1 WHEN 'main' THEN 2 ELSE 3 END, d.name`,
   );
   return rows;
 }
@@ -25,10 +25,10 @@ async function findById(id, db) {
 }
 
 async function nameExists(name, exceptId = null) {
-  const { rows } = await query(
-    'SELECT 1 FROM dish WHERE lower(name) = lower($1) AND dish_id IS DISTINCT FROM $2',
-    [name, exceptId]
-  );
+  const { rows } = await query('SELECT 1 FROM dish WHERE lower(name) = lower($1) AND dish_id IS DISTINCT FROM $2', [
+    name,
+    exceptId,
+  ]);
   return rows.length > 0;
 }
 
@@ -36,7 +36,7 @@ async function create(d, db) {
   const { rows } = await query(
     'INSERT INTO dish (name, course, description) VALUES ($1, $2, $3) RETURNING dish_id AS id',
     [d.name, d.course, d.description],
-    db
+    db,
   );
   return rows[0].id;
 }
@@ -45,7 +45,7 @@ async function update(id, d, db) {
   const { rowCount } = await query(
     'UPDATE dish SET name = $2, course = $3, description = $4 WHERE dish_id = $1',
     [id, d.name, d.course, d.description],
-    db
+    db,
   );
   return rowCount > 0;
 }
@@ -61,7 +61,7 @@ async function setAllergens(id, allergenIds, db) {
 async function menusUsing(id) {
   const { rows } = await query(
     'SELECT m.title FROM menu_dish md JOIN menu m USING (menu_id) WHERE md.dish_id = $1 ORDER BY m.title',
-    [id]
+    [id],
   );
   return rows.map((r) => r.title);
 }

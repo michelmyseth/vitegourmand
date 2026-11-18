@@ -9,39 +9,85 @@
       <div class="grid-2">
         <div class="field">
           <label for="lastName">Nom</label>
-          <input id="lastName" v-model.trim="form.lastName" autocomplete="family-name" :aria-invalid="!!errors.lastName" aria-describedby="lastName-err" />
+          <input
+            id="lastName"
+            v-model.trim="form.lastName"
+            autocomplete="family-name"
+            :aria-invalid="!!errors.lastName"
+            aria-describedby="lastName-err"
+          />
           <p v-if="errors.lastName" id="lastName-err" class="err">{{ errors.lastName }}</p>
         </div>
         <div class="field">
           <label for="firstName">Prénom</label>
-          <input id="firstName" v-model.trim="form.firstName" autocomplete="given-name" :aria-invalid="!!errors.firstName" aria-describedby="firstName-err" />
+          <input
+            id="firstName"
+            v-model.trim="form.firstName"
+            autocomplete="given-name"
+            :aria-invalid="!!errors.firstName"
+            aria-describedby="firstName-err"
+          />
           <p v-if="errors.firstName" id="firstName-err" class="err">{{ errors.firstName }}</p>
         </div>
       </div>
       <div class="field">
         <label for="email">Email</label>
-        <input id="email" v-model.trim="form.email" type="email" autocomplete="email" :aria-invalid="!!errors.email" aria-describedby="email-err" />
+        <input
+          id="email"
+          v-model.trim="form.email"
+          type="email"
+          autocomplete="email"
+          :aria-invalid="!!errors.email"
+          aria-describedby="email-err"
+        />
         <p v-if="errors.email" id="email-err" class="err">{{ errors.email }}</p>
       </div>
       <div class="field">
         <label for="phone">Téléphone portable</label>
-        <input id="phone" v-model.trim="form.phone" type="tel" autocomplete="tel" :aria-invalid="!!errors.phone" aria-describedby="phone-err" />
+        <input
+          id="phone"
+          v-model.trim="form.phone"
+          type="tel"
+          autocomplete="tel"
+          :aria-invalid="!!errors.phone"
+          aria-describedby="phone-err"
+        />
         <p v-if="errors.phone" id="phone-err" class="err">{{ errors.phone }}</p>
       </div>
       <div class="field">
         <label for="address">Adresse postale</label>
-        <input id="address" v-model.trim="form.address" autocomplete="street-address" :aria-invalid="!!errors.address" aria-describedby="address-err" />
+        <input
+          id="address"
+          v-model.trim="form.address"
+          autocomplete="street-address"
+          :aria-invalid="!!errors.address"
+          aria-describedby="address-err"
+        />
         <p v-if="errors.address" id="address-err" class="err">{{ errors.address }}</p>
       </div>
       <div class="grid-2">
         <div class="field">
           <label for="postcode">Code postal</label>
-          <input id="postcode" v-model.trim="form.postcode" inputmode="numeric" maxlength="5" autocomplete="postal-code" :aria-invalid="!!errors.postcode" aria-describedby="postcode-err" />
+          <input
+            id="postcode"
+            v-model.trim="form.postcode"
+            inputmode="numeric"
+            maxlength="5"
+            autocomplete="postal-code"
+            :aria-invalid="!!errors.postcode"
+            aria-describedby="postcode-err"
+          />
           <p v-if="errors.postcode" id="postcode-err" class="err">{{ errors.postcode }}</p>
         </div>
         <div class="field">
           <label for="city">Ville</label>
-          <input id="city" v-model.trim="form.city" autocomplete="address-level2" :aria-invalid="!!errors.city" aria-describedby="city-err" />
+          <input
+            id="city"
+            v-model.trim="form.city"
+            autocomplete="address-level2"
+            :aria-invalid="!!errors.city"
+            aria-describedby="city-err"
+          />
           <p v-if="errors.city" id="city-err" class="err">{{ errors.city }}</p>
         </div>
       </div>
@@ -66,7 +112,10 @@ const saving = ref(false)
 
 // Filled from the logged-in user (loaded by the router guard)
 watchEffect(() => {
-  if (user.value) FIELDS.forEach((k) => { form[k] = user.value[k] || '' })
+  if (user.value)
+    FIELDS.forEach((k) => {
+      form[k] = user.value[k] || ''
+    })
 })
 
 function validate() {

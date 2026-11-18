@@ -8,7 +8,9 @@
         <p v-if="h.reason" class="reason">{{ h.reason }}</p>
         <p v-if="staff && (h.changedBy || h.contactMethod)" class="meta">
           <template v-if="h.changedBy">Par {{ h.changedBy }}</template>
-          <template v-if="h.contactMethod"> — client contacté par {{ h.contactMethod === 'phone' ? 'téléphone' : 'email' }}</template>
+          <template v-if="h.contactMethod">
+            — client contacté par {{ h.contactMethod === 'phone' ? 'téléphone' : 'email' }}</template
+          >
         </p>
       </div>
     </li>
@@ -49,14 +51,14 @@ defineProps({
 }
 
 .current .dot {
-  background: #2e7d32;
-  border-color: #2e7d32;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 time {
   display: block;
   font-size: 0.9rem;
-  color: #555;
+  color: var(--color-text-muted);
   margin-top: 2px;
 }
 
@@ -67,6 +69,6 @@ time {
 }
 
 .meta {
-  color: #555;
+  color: var(--color-text-muted);
 }
 </style>

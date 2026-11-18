@@ -5,7 +5,11 @@
       <div class="container">
         <h1>Mon espace</h1>
         <nav class="tabs" aria-label="Mon espace">
-          <router-link to="/account" exact-active-class="active" :class="{ active: route.path.startsWith('/account/orders') }">
+          <router-link
+            to="/account"
+            exact-active-class="active"
+            :class="{ active: route.path.startsWith('/account/orders') }"
+          >
             Mes commandes
           </router-link>
           <router-link to="/account/profile" active-class="active">Mes informations</router-link>
@@ -37,12 +41,12 @@ const route = useRoute()
 .tabs a {
   padding: 8px 16px;
   border-radius: 6px 6px 0 0;
-  color: #1b5e20;
+  color: var(--color-primary-dark);
   font-weight: 600;
 }
 
 .tabs a.active {
-  background: #2e7d32;
+  background: var(--color-primary);
   color: #fff;
 }
 </style>

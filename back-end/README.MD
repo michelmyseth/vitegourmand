@@ -21,11 +21,13 @@ Assurez-vous que MongoDB et PostgreSQL sont lancés avant de démarrer l'applica
 ## 🔧 Installation
 
 Installer les dépendances :
+
 ```bash
 npm install
 ```
 
 Créer le fichier `.env` à partir de l'exemple puis renseigner vos valeurs :
+
 ```bash
 cp .env.example .env
 ```
@@ -59,10 +61,10 @@ Reporter les mêmes valeurs dans `.env` (`PG_USER`, `PG_PASSWORD`, `PG_DB`).
 
 Les scripts sont dans `database/` (modèle de données : `docs/data-model.md`) :
 
-| Fichier | Rôle |
-|---|---|
-| `schema.sql` | Crée toutes les tables, clés et contraintes (supprime les tables existantes avant) |
-| `seed.sql` | Insère les données de démonstration (menus, plats, horaires, comptes, commandes, avis) |
+| Fichier      | Rôle                                                                                   |
+| ------------ | -------------------------------------------------------------------------------------- |
+| `schema.sql` | Crée toutes les tables, clés et contraintes (supprime les tables existantes avant)     |
+| `seed.sql`   | Insère les données de démonstration (menus, plats, horaires, comptes, commandes, avis) |
 
 ```bash
 # avec psql installé en local
@@ -76,16 +78,17 @@ docker exec -i postgres-vitegourmand psql -U vitegourmand -d vitegourmand < data
 
 ### 👤 Comptes de démonstration
 
-| Rôle | Email | Mot de passe |
-|---|---|---|
-| Administrateur (José) | jose@vitegourmand.fr | Admin#Jose2026! |
-| Employée | julie.employe@vitegourmand.fr | Employe#2026! |
-| Utilisateur | marie.dupont@example.com | Client#2026! |
-| Utilisateur | thomas.martin@example.com | Client#2026! |
+| Rôle                  | Email                         | Mot de passe    |
+| --------------------- | ----------------------------- | --------------- |
+| Administrateur (José) | jose@vitegourmand.fr          | Admin#Jose2026! |
+| Employée              | julie.employe@vitegourmand.fr | Employe#2026!   |
+| Utilisateur           | marie.dupont@example.com      | Client#2026!    |
+| Utilisateur           | thomas.martin@example.com     | Client#2026!    |
 
 Le compte administrateur ne peut être créé **que par le script SQL** : aucune route de l'API ne le permet, et un trigger PostgreSQL refuse toute création ou promotion d'administrateur en dehors de ce script.
 
 Lancer le serveur en mode développement avec Nodemon :
+
 ```bash
 npm run dev
 ```
@@ -124,13 +127,13 @@ Route de test : `GET /api/health` → `{ "status": "ok" }`.
 Authentification par jeton JWT dans un cookie `httpOnly` (`SameSite=Strict`). Le rôle est relu en base à chaque requête.
 L'administrateur **hérite de toutes les fonctionnalités employé** (middleware `requireEmployee` = rôles `employee` + `admin`).
 
-| Préfixe | Accès | Routes |
-|---|---|---|
-| `/api/auth` | public | `POST register`, `POST login`, `POST logout`, `POST forgot-password`, `POST reset-password`, `GET me` |
-| `/api` | public | `GET menus` (filtres `maxPrice`, `minPrice`, `theme`, `diet`, `minPeople`), `GET menus/:id`, `GET themes`, `GET diets`, `GET allergens`, `GET opening-hours`, `GET reviews` |
-| `/api/orders` | utilisateur | `GET /`, `POST /`, `GET /:id`, `PUT /:id`, `POST /:id/cancel`, `POST /:id/review` |
-| `/api/users` | connecté | `PUT me` |
-| `/api/staff` | employé + admin | `orders` (liste filtrée, détail, `PUT /:id/status`, `PUT /:id`, `POST /:id/cancel`), `menus` (CRUD + images), `dishes` (CRUD), `PUT opening-hours`, `reviews` (modération) |
-| `/api/admin` | admin | `employees` (liste, création, `PUT /:id/active`), `GET stats` |
+| Préfixe       | Accès           | Routes                                                                                                                                                                      |
+| ------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/api/auth`   | public          | `POST register`, `POST login`, `POST logout`, `POST forgot-password`, `POST reset-password`, `GET me`                                                                       |
+| `/api`        | public          | `GET menus` (filtres `maxPrice`, `minPrice`, `theme`, `diet`, `minPeople`), `GET menus/:id`, `GET themes`, `GET diets`, `GET allergens`, `GET opening-hours`, `GET reviews` |
+| `/api/orders` | utilisateur     | `GET /`, `POST /`, `GET /:id`, `PUT /:id`, `POST /:id/cancel`, `POST /:id/review`                                                                                           |
+| `/api/users`  | connecté        | `PUT me`                                                                                                                                                                    |
+| `/api/staff`  | employé + admin | `orders` (liste filtrée, détail, `PUT /:id/status`, `PUT /:id`, `POST /:id/cancel`), `menus` (CRUD + images), `dishes` (CRUD), `PUT opening-hours`, `reviews` (modération)  |
+| `/api/admin`  | admin           | `employees` (liste, création, `PUT /:id/active`), `GET stats`                                                                                                               |
 
 Réponses d'erreur : `{ "error": "message", "details": { "champ": "message" } }` avec le code HTTP adapté (400, 401, 403, 404, 409, 503).

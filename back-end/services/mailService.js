@@ -13,46 +13,58 @@ function sendSafely(mail) {
 }
 
 const mails = {
-  welcome: (user) => sendSafely({
-    to: user.email,
-    subject: 'Bienvenue chez Vite & Gourmand',
-    text: `Bonjour ${user.firstName},\n\nVotre compte Vite & Gourmand est créé. `
-      + `Vous pouvez dès maintenant commander nos menus : ${FRONT_URL}/menus\n\nJulie et José`,
-  }),
-  passwordReset: (user, link) => sendSafely({
-    to: user.email,
-    subject: 'Réinitialisation de votre mot de passe',
-    text: `Bonjour ${user.firstName},\n\nPour choisir un nouveau mot de passe, ouvrez ce lien (valable 1 heure) :\n${link}\n\n`
-      + "Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.",
-  }),
-  orderConfirmation: (user, order) => sendSafely({
-    to: user.email,
-    subject: `Confirmation de votre commande ${order.orderNumber}`,
-    text: `Bonjour ${user.firstName},\n\nNous avons bien reçu votre commande ${order.orderNumber} :\n`
-      + `- ${order.menuTitle} pour ${order.people} personnes\n`
-      + `- le ${order.date} à ${order.time}, ${order.address}, ${order.postcode} ${order.city}\n`
-      + `- total : ${order.totalPrice.toFixed(2).replace('.', ',')} €\n\n`
-      + `Vous pouvez suivre, modifier ou annuler votre commande tant qu'elle n'est pas acceptée : ${FRONT_URL}/account\n\nJulie et José`,
-  }),
-  equipmentReturn: (order) => sendSafely({
-    to: order.customerEmail,
-    subject: `Commande ${order.orderNumber} : restitution du matériel`,
-    text: `Bonjour ${order.customerFirstName},\n\nDu matériel vous a été prêté pour votre commande ${order.orderNumber}. `
-      + 'Merci de prendre contact avec nous pour organiser sa restitution sous 10 jours ouvrés. '
-      + 'Passé ce délai, des frais de 600 € vous seront facturés, conformément à nos conditions générales de vente.\n\nJulie et José',
-  }),
-  orderCompleted: (order) => sendSafely({
-    to: order.customerEmail,
-    subject: `Commande ${order.orderNumber} terminée : donnez votre avis`,
-    text: `Bonjour ${order.customerFirstName},\n\nVotre commande ${order.orderNumber} est terminée. Merci de votre confiance !\n`
-      + `Votre avis nous intéresse : connectez-vous à votre espace pour le donner : ${FRONT_URL}/account/orders/${order.id}\n\nJulie et José`,
-  }),
-  employeeCreated: (employee) => sendSafely({
-    to: employee.email,
-    subject: 'Votre compte employé Vite & Gourmand',
-    text: `Bonjour ${employee.firstName},\n\nUn compte employé a été créé pour vous avec l'identifiant ${employee.email}.\n`
-      + "Le mot de passe ne vous est pas envoyé par email : rapprochez-vous de l'administrateur pour l'obtenir.",
-  }),
+  welcome: (user) =>
+    sendSafely({
+      to: user.email,
+      subject: 'Bienvenue chez Vite & Gourmand',
+      text:
+        `Bonjour ${user.firstName},\n\nVotre compte Vite & Gourmand est créé. ` +
+        `Vous pouvez dès maintenant commander nos menus : ${FRONT_URL}/menus\n\nJulie et José`,
+    }),
+  passwordReset: (user, link) =>
+    sendSafely({
+      to: user.email,
+      subject: 'Réinitialisation de votre mot de passe',
+      text:
+        `Bonjour ${user.firstName},\n\nPour choisir un nouveau mot de passe, ouvrez ce lien (valable 1 heure) :\n${link}\n\n` +
+        "Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.",
+    }),
+  orderConfirmation: (user, order) =>
+    sendSafely({
+      to: user.email,
+      subject: `Confirmation de votre commande ${order.orderNumber}`,
+      text:
+        `Bonjour ${user.firstName},\n\nNous avons bien reçu votre commande ${order.orderNumber} :\n` +
+        `- ${order.menuTitle} pour ${order.people} personnes\n` +
+        `- le ${order.date} à ${order.time}, ${order.address}, ${order.postcode} ${order.city}\n` +
+        `- total : ${order.totalPrice.toFixed(2).replace('.', ',')} €\n\n` +
+        `Vous pouvez suivre, modifier ou annuler votre commande tant qu'elle n'est pas acceptée : ${FRONT_URL}/account\n\nJulie et José`,
+    }),
+  equipmentReturn: (order) =>
+    sendSafely({
+      to: order.customerEmail,
+      subject: `Commande ${order.orderNumber} : restitution du matériel`,
+      text:
+        `Bonjour ${order.customerFirstName},\n\nDu matériel vous a été prêté pour votre commande ${order.orderNumber}. ` +
+        'Merci de prendre contact avec nous pour organiser sa restitution sous 10 jours ouvrés. ' +
+        'Passé ce délai, des frais de 600 € vous seront facturés, conformément à nos conditions générales de vente.\n\nJulie et José',
+    }),
+  orderCompleted: (order) =>
+    sendSafely({
+      to: order.customerEmail,
+      subject: `Commande ${order.orderNumber} terminée : donnez votre avis`,
+      text:
+        `Bonjour ${order.customerFirstName},\n\nVotre commande ${order.orderNumber} est terminée. Merci de votre confiance !\n` +
+        `Votre avis nous intéresse : connectez-vous à votre espace pour le donner : ${FRONT_URL}/account/orders/${order.id}\n\nJulie et José`,
+    }),
+  employeeCreated: (employee) =>
+    sendSafely({
+      to: employee.email,
+      subject: 'Votre compte employé Vite & Gourmand',
+      text:
+        `Bonjour ${employee.firstName},\n\nUn compte employé a été créé pour vous avec l'identifiant ${employee.email}.\n` +
+        "Le mot de passe ne vous est pas envoyé par email : rapprochez-vous de l'administrateur pour l'obtenir.",
+    }),
 };
 
 module.exports = { sendMail, mails, FRONT_URL };

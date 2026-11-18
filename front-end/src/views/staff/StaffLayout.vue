@@ -51,12 +51,12 @@ const tabs = computed(() => [
 .tabs a {
   padding: 8px 16px;
   border-radius: 6px 6px 0 0;
-  color: #1b5e20;
+  color: var(--color-primary-dark);
   font-weight: 600;
 }
 
 .tabs a.active {
-  background: #2e7d32;
+  background: var(--color-primary);
   color: #fff;
 }
 </style>

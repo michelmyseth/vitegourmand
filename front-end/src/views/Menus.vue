@@ -7,36 +7,42 @@
 
         <div class="filters">
           <div class="filter-row">
-            <label>Prix maximum (€)
+            <label
+              >Prix maximum (€)
               <input v-model.number="f.maxPrice" type="number" min="0" placeholder="ex : 100" />
             </label>
 
             <fieldset class="range">
               <legend>Fourchette de prix (€)</legend>
-              <label><span class="sr-only">Prix minimum</span>
+              <label
+                ><span class="sr-only">Prix minimum</span>
                 <input v-model.number="f.minPrice" type="number" min="0" placeholder="min" />
               </label>
               <span aria-hidden="true">—</span>
-              <label><span class="sr-only">Prix maximum de la fourchette</span>
+              <label
+                ><span class="sr-only">Prix maximum de la fourchette</span>
                 <input v-model.number="f.rangeMax" type="number" min="0" placeholder="max" />
               </label>
             </fieldset>
 
-            <label>Thème
+            <label
+              >Thème
               <select v-model="f.theme">
                 <option value="">Tous</option>
                 <option v-for="t in themes" :key="t.id" :value="t.id">{{ t.label }}</option>
               </select>
             </label>
 
-            <label>Régime
+            <label
+              >Régime
               <select v-model="f.diet">
                 <option value="">Tous</option>
                 <option v-for="d in diets" :key="d.id" :value="d.id">{{ d.label }}</option>
               </select>
             </label>
 
-            <label>Personnes minimum
+            <label
+              >Personnes minimum
               <input v-model.number="f.minPeople" type="number" min="1" />
             </label>
 
@@ -47,10 +53,14 @@
         </div>
 
         <p v-if="error" class="alert alert-error" role="alert">{{ error }}</p>
-        <p class="sr-only" aria-live="polite">{{ loading ? 'Chargement des menus…' : `${menus.length} menu(s) trouvé(s)` }}</p>
+        <p class="sr-only" aria-live="polite">
+          {{ loading ? 'Chargement des menus…' : `${menus.length} menu(s) trouvé(s)` }}
+        </p>
 
         <div class="list" :aria-busy="loading">
-          <div v-if="!loading && !error && menus.length === 0" class="empty">Aucun menu ne correspond à ces filtres.</div>
+          <div v-if="!loading && !error && menus.length === 0" class="empty">
+            Aucun menu ne correspond à ces filtres.
+          </div>
           <article v-for="m in menus" :key="m.id" class="card">
             <img :src="imageUrl(m.image)" alt="" class="card-image" />
             <div class="card-body">
@@ -64,12 +74,13 @@
                 <div v-if="m.stock === 0" class="sold-out">Épuisé</div>
               </div>
               <div class="actions">
-                <router-link :to="`/menus/${m.id}`" class="detail-link">Voir le détail<span class="sr-only"> du {{ m.title }}</span></router-link>
+                <router-link :to="`/menus/${m.id}`" class="detail-link"
+                  >Voir le détail<span class="sr-only"> du {{ m.title }}</span></router-link
+                >
               </div>
             </div>
           </article>
         </div>
-
       </section>
     </main>
     <Footer />
@@ -164,7 +175,7 @@ section h2 {
   background: #fff;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .filter-row {
@@ -203,9 +214,10 @@ section h2 {
   font-weight: 600;
 }
 
-.filter-row input, .filter-row select {
+.filter-row input,
+.filter-row select {
   padding: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   margin-top: 4px;
 }
@@ -218,9 +230,9 @@ section h2 {
 .filter-actions button {
   padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   background: #fff;
-  color: #333;
+  color: var(--color-text);
   cursor: pointer;
 }
 
@@ -232,7 +244,7 @@ section h2 {
 }
 
 .card {
-  border: 1px solid #eee;
+  border: 1px solid var(--color-line);
   padding: 12px;
   border-radius: 6px;
   background: #fff;
@@ -261,7 +273,7 @@ section h2 {
   gap: 16px;
   flex-wrap: wrap;
   font-size: 14px;
-  color: #333;
+  color: var(--color-text);
   margin-bottom: 8px;
 }
 
@@ -272,9 +284,9 @@ section h2 {
 .actions button {
   padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   background: #fff;
-  color: #333;
+  color: var(--color-text);
   cursor: pointer;
 }
 
@@ -295,20 +307,19 @@ section h2 {
   display: inline-block;
   padding: 6px 12px;
   border-radius: 6px;
-  background: #2e7d32;
+  background: var(--color-primary);
   color: #fff;
   font-weight: 600;
 }
 
 .detail-link:hover {
-  background: #1b5e20;
+  background: var(--color-primary-dark);
 }
 
 .detail-link:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
-
 
 @media (max-width: 768px) {
   .card {

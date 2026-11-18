@@ -12,10 +12,12 @@ const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
-app.use(cors({
-  origin: (process.env.FRONT_URL || 'http://localhost:8080').split(','),
-  credentials: true, // the JWT is sent in an httpOnly cookie
-}));
+app.use(
+  cors({
+    origin: (process.env.FRONT_URL || 'http://localhost:8080').split(','),
+    credentials: true, // the JWT is sent in an httpOnly cookie
+  }),
+);
 
 // Images uploaded by employees (menus)
 app.use('/uploads', express.static(UPLOAD_DIR, { fallthrough: false, index: false }));

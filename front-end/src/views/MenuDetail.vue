@@ -16,7 +16,11 @@
 
         <div class="top">
           <section class="gallery" aria-label="Galerie d'images">
-            <img :src="imageUrl(menu.images[current]?.url)" :alt="menu.images[current]?.alt || `${menu.title} — photo ${current + 1} sur ${menu.images.length}`" class="gallery-main" />
+            <img
+              :src="imageUrl(menu.images[current]?.url)"
+              :alt="menu.images[current]?.alt || `${menu.title} — photo ${current + 1} sur ${menu.images.length}`"
+              class="gallery-main"
+            />
             <div v-if="menu.images.length > 1" class="thumbs">
               <button
                 v-for="(img, i) in menu.images"
@@ -37,8 +41,14 @@
             <p class="desc">{{ menu.description }}</p>
 
             <dl class="facts">
-              <div><dt>Prix</dt><dd>{{ euros(menu.price) }} pour {{ menu.minPeople }} personnes</dd></div>
-              <div><dt>Minimum</dt><dd>{{ menu.minPeople }} personnes</dd></div>
+              <div>
+                <dt>Prix</dt>
+                <dd>{{ euros(menu.price) }} pour {{ menu.minPeople }} personnes</dd>
+              </div>
+              <div>
+                <dt>Minimum</dt>
+                <dd>{{ menu.minPeople }} personnes</dd>
+              </div>
               <div>
                 <dt>Disponibilité</dt>
                 <dd :class="{ 'out-of-stock': menu.stock === 0 }">
@@ -52,12 +62,7 @@
               <p>{{ menu.conditions }}</p>
             </aside>
 
-            <button
-              type="button"
-              class="order-btn"
-              :disabled="menu.stock === 0"
-              @click="order"
-            >
+            <button type="button" class="order-btn" :disabled="menu.stock === 0" @click="order">
               {{ menu.stock === 0 ? 'Menu épuisé' : 'Commander ce menu' }}
             </button>
 
@@ -169,7 +174,7 @@ async function order() {
 .back-link {
   display: inline-block;
   margin-bottom: 16px;
-  color: #2e7d32;
+  color: var(--color-primary);
   text-decoration: underline;
 }
 
@@ -191,8 +196,8 @@ async function order() {
 }
 
 .badges li {
-  background: #e8f5e9;
-  color: #1b5e20;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
   padding: 4px 12px;
   border-radius: 999px;
   font-size: 0.9rem;
@@ -226,7 +231,7 @@ async function order() {
 }
 
 .thumb.active {
-  border-color: #2e7d32;
+  border-color: var(--color-primary);
 }
 
 .thumb img {
@@ -249,7 +254,7 @@ async function order() {
   display: flex;
   gap: 8px;
   padding: 6px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .facts dt {
@@ -290,11 +295,11 @@ async function order() {
   padding: 12px;
   font-size: 1.1rem;
   font-weight: bold;
-  background: #2e7d32;
+  background: var(--color-primary);
 }
 
 .order-btn:hover {
-  background: #1b5e20;
+  background: var(--color-primary-dark);
 }
 
 .order-btn:disabled {
@@ -337,7 +342,7 @@ async function order() {
   background: #fff;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .course h3 {
@@ -354,7 +359,7 @@ async function order() {
   display: flex;
   flex-direction: column;
   padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .course li:last-child {
@@ -367,12 +372,12 @@ async function order() {
 
 .allergens {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--color-text-muted);
 }
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

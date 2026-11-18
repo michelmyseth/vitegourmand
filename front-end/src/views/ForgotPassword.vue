@@ -7,7 +7,9 @@
 
         <p v-if="message" class="alert alert-success" role="status">{{ message }}</p>
         <template v-else>
-          <p class="intro">Indiquez l'email de votre compte : nous vous enverrons un lien pour choisir un nouveau mot de passe.</p>
+          <p class="intro">
+            Indiquez l'email de votre compte : nous vous enverrons un lien pour choisir un nouveau mot de passe.
+          </p>
           <p v-if="error" class="alert alert-error" role="alert">{{ error }}</p>
 
           <form class="panel" novalidate @submit.prevent="send">

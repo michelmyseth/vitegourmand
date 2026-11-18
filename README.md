@@ -96,6 +96,28 @@ docker compose restart back    # ou front : relance npm ci
 
 ---
 
+## ✅ Tests automatisés (back-end)
+
+Jest + Supertest : tests unitaires (calcul du prix, validation) et tests de l'API
+(inscription, connexion, déconnexion, accès par rôle, création et suivi des commandes).
+
+```bash
+docker exec vitegourmand-back npm test
+```
+
+Les tests utilisent des bases séparées (`vitegourmand_test` dans PostgreSQL et MongoDB),
+recréées depuis `schema.sql` + `seed.sql` à chaque lancement : les données de développement
+ne sont jamais modifiées. Le service d'adresses (internet) est simulé.
+
+### Qualité du code
+
+```bash
+docker exec vitegourmand-back npm run lint      # ESLint (bugs, mauvaises pratiques)
+docker exec vitegourmand-front npm run lint
+docker exec vitegourmand-back npm run format    # Prettier (mise en forme)
+docker exec vitegourmand-front npm run format
+```
+
 ## 🛠 Lancer sans Docker
 
 Voir [`back-end/README.MD`](back-end/README.MD) et [`front-end/README.md`](front-end/README.md)

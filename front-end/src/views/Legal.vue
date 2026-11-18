@@ -6,11 +6,13 @@
 
       <section>
         <h2>Éditeur du site</h2>
-        <p>Vite &amp; Gourmand — traiteur<br />
+        <p>
+          Vite &amp; Gourmand — traiteur<br />
           Siège social : [adresse], 33000 Bordeaux<br />
           SIRET : [numéro SIRET]<br />
           Téléphone : [numéro] — Email : [adresse email]<br />
-          Responsables de la publication : Julie et José</p>
+          Responsables de la publication : Julie et José
+        </p>
       </section>
 
       <section>
@@ -20,18 +22,31 @@
 
       <section>
         <h2>Propriété intellectuelle</h2>
-        <p>L'ensemble des contenus de ce site (textes, images, logos) est la propriété de Vite &amp; Gourmand. Toute reproduction sans autorisation est interdite.</p>
+        <p>
+          L'ensemble des contenus de ce site (textes, images, logos) est la propriété de Vite &amp; Gourmand. Toute
+          reproduction sans autorisation est interdite.
+        </p>
       </section>
 
       <section>
         <h2>Données personnelles (RGPD)</h2>
-        <p>Les données collectées (nom, prénom, email, téléphone, adresse) sont utilisées uniquement pour la gestion de votre compte et de vos commandes. Elles ne sont jamais cédées à des tiers.</p>
-        <p>Conformément au Règlement Général sur la Protection des Données, vous disposez d'un droit d'accès, de rectification, d'opposition et de suppression de vos données. Pour l'exercer, contactez-nous via la <router-link to="/contact">page contact</router-link>.</p>
+        <p>
+          Les données collectées (nom, prénom, email, téléphone, adresse) sont utilisées uniquement pour la gestion de
+          votre compte et de vos commandes. Elles ne sont jamais cédées à des tiers.
+        </p>
+        <p>
+          Conformément au Règlement Général sur la Protection des Données, vous disposez d'un droit d'accès, de
+          rectification, d'opposition et de suppression de vos données. Pour l'exercer, contactez-nous via la
+          <router-link to="/contact">page contact</router-link>.
+        </p>
       </section>
 
       <section>
         <h2>Cookies</h2>
-        <p>Ce site utilise uniquement un cookie technique nécessaire à la connexion à votre compte. Aucun cookie publicitaire ou de mesure d'audience n'est déposé.</p>
+        <p>
+          Ce site utilise uniquement un cookie technique nécessaire à la connexion à votre compte. Aucun cookie
+          publicitaire ou de mesure d'audience n'est déposé.
+        </p>
       </section>
     </main>
     <Footer />
@@ -68,7 +83,7 @@ import Footer from '@/components/Footer.vue'
 }
 
 .legal a {
-  color: #2e7d32;
+  color: var(--color-primary);
   text-decoration: underline;
 }
 </style>

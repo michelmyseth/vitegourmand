@@ -29,7 +29,7 @@ async function nextOrderNumber(db) {
     `SELECT coalesce(max(substring(order_number FROM 9)::int), 0) + 1 AS n
      FROM customer_order WHERE order_number LIKE $1`,
     [`VG-${year}-%`],
-    db
+    db,
   );
   return `VG-${year}-${String(rows[0].n).padStart(4, '0')}`;
 }
@@ -42,10 +42,25 @@ async function create(o, db) {
        menu_price, discount, delivery_price, total_price, equipment_loan)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
      RETURNING order_id AS id`,
-    [o.orderNumber, o.userId, o.menuId, o.people, o.address, o.postcode, o.city,
-      o.date, o.time, o.place, o.deliveryKm,
-      o.menuPrice, o.discount, o.deliveryPrice, o.totalPrice, o.equipmentLoan],
-    db
+    [
+      o.orderNumber,
+      o.userId,
+      o.menuId,
+      o.people,
+      o.address,
+      o.postcode,
+      o.city,
+      o.date,
+      o.time,
+      o.place,
+      o.deliveryKm,
+      o.menuPrice,
+      o.discount,
+      o.deliveryPrice,
+      o.totalPrice,
+      o.equipmentLoan,
+    ],
+    db,
   );
   return rows[0].id;
 }
@@ -55,7 +70,7 @@ async function addHistory(orderId, status, { changedBy = null, contactMethod = n
     `INSERT INTO order_status_history (order_id, status, changed_by, contact_method, reason)
      VALUES ($1, $2, $3, $4, $5)`,
     [orderId, status, changedBy, contactMethod, reason],
-    db
+    db,
   );
 }
 
@@ -64,7 +79,7 @@ async function findById(id, { forUpdate = false } = {}, db) {
     `SELECT ${ORDER_FIELDS}, ${CUSTOMER_FIELDS} ${ORDER_FROM}
      WHERE o.order_id = $1 ${forUpdate ? 'FOR UPDATE OF o' : ''}`,
     [id],
-    db
+    db,
   );
   return rows[0] || null;
 }
@@ -78,16 +93,15 @@ async function findHistory(orderId, db) {
      WHERE h.order_id = $1
      ORDER BY h.changed_at, h.history_id`,
     [orderId],
-    db
+    db,
   );
   return rows;
 }
 
 async function findByUser(userId) {
-  const { rows } = await query(
-    `SELECT ${ORDER_FIELDS} ${ORDER_FROM} WHERE o.user_id = $1 ORDER BY o.created_at DESC`,
-    [userId]
-  );
+  const { rows } = await query(`SELECT ${ORDER_FIELDS} ${ORDER_FROM} WHERE o.user_id = $1 ORDER BY o.created_at DESC`, [
+    userId,
+  ]);
   return rows;
 }
 
@@ -98,9 +112,22 @@ async function updateEvent(id, o, db) {
        event_date = $6, event_time = $7, place_details = $8, delivery_km = $9,
        menu_price = $10, discount = $11, delivery_price = $12, total_price = $13, updated_at = now()
      WHERE order_id = $1`,
-    [id, o.people, o.address, o.postcode, o.city, o.date, o.time, o.place, o.deliveryKm,
-      o.menuPrice, o.discount, o.deliveryPrice, o.totalPrice],
-    db
+    [
+      id,
+      o.people,
+      o.address,
+      o.postcode,
+      o.city,
+      o.date,
+      o.time,
+      o.place,
+      o.deliveryKm,
+      o.menuPrice,
+      o.discount,
+      o.deliveryPrice,
+      o.totalPrice,
+    ],
+    db,
   );
 }
 
@@ -127,15 +154,10 @@ async function findAllForStaff({ status, customer } = {}) {
     `SELECT ${ORDER_FIELDS}, ${CUSTOMER_FIELDS} ${ORDER_FROM}
      ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
      ORDER BY o.event_date, o.event_time`,
-    params
+    params,
   );
   return rows;
 }
-
-module.exports = {
-  findAllForStaff, updateEvent, updateStatus,
-  ORDER_FIELDS, CUSTOMER_FIELDS, ORDER_FROM, nextOrderNumber, create, addHistory, findById, findHistory, findByUser,
-};
 
 /** Equipment lent with the order (status 'awaiting_equipment_return') / given back */
 async function setEquipment(id, { loan, returned }, db) {
@@ -144,8 +166,19 @@ async function setEquipment(id, { loan, returned }, db) {
        equipment_returned = coalesce($3, equipment_returned), updated_at = now()
      WHERE order_id = $1`,
     [id, loan ?? null, returned ?? null],
-    db
+    db,
   );
 }
 
-module.exports.setEquipment = setEquipment;
+module.exports = {
+  nextOrderNumber,
+  create,
+  addHistory,
+  findById,
+  findHistory,
+  findByUser,
+  findAllForStaff,
+  updateEvent,
+  updateStatus,
+  setEquipment,
+};
