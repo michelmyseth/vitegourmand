@@ -9,6 +9,8 @@ import Legal from '@/views/Legal.vue'
 import Terms from '@/views/Terms.vue'
 import MenuDetail from '@/views/MenuDetail.vue'
 import Order from '@/views/Order.vue'
+import ForgotPassword from '@/views/ForgotPassword.vue'
+import ResetPassword from '@/views/ResetPassword.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -50,6 +52,8 @@ const routes = [
     meta: { requiresAuth: true }
   },
   { path: '/profile', redirect: '/account' },
+  { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
+  { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
   {
     path: "/register",
     name: "Register",

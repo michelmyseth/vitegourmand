@@ -13,9 +13,19 @@ async function login(req, res) {
   res.json({ user });
 }
 
+async function forgotPassword(req, res) {
+  await authService.forgotPassword(req.body);
+  res.json({ message: 'Si un compte existe avec cet email, un lien de réinitialisation vient de vous être envoyé.' });
+}
+
+async function resetPassword(req, res) {
+  await authService.resetPassword(req.body);
+  res.json({ message: 'Votre mot de passe a été modifié.' });
+}
+
 /** Current user (null for a visitor) */
 function me(req, res) {
   res.json({ user: req.user });
 }
 
-module.exports = { register, login, me };
+module.exports = { register, login, forgotPassword, resetPassword, me };
