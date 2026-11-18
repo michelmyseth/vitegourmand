@@ -55,4 +55,13 @@ async function updatePassword(id, passwordHash, db) {
   await query('UPDATE app_user SET password_hash = $2, updated_at = now() WHERE user_id = $1', [id, passwordHash], db);
 }
 
-module.exports = { findById, findByEmailWithHash, findHashById, emailExists, create, updatePassword };
+async function updateProfile(id, u) {
+  await query(
+    `UPDATE app_user SET last_name = $2, first_name = $3, phone = $4, email = $5,
+       address = $6, postcode = $7, city = $8, updated_at = now()
+     WHERE user_id = $1`,
+    [id, u.lastName, u.firstName, u.phone, u.email, u.address, u.postcode, u.city]
+  );
+}
+
+module.exports = { updateProfile, findById, findByEmailWithHash, findHashById, emailExists, create, updatePassword };
