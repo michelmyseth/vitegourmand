@@ -9,4 +9,8 @@ async function detail(req, res) {
   res.json(await staffOrderService.getOrder(parseId(req.params.id)));
 }
 
-module.exports = { list, detail };
+async function changeStatus(req, res) {
+  res.json(await staffOrderService.changeStatus(req.user, parseId(req.params.id), req.body));
+}
+
+module.exports = { list, detail, changeStatus };

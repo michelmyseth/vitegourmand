@@ -34,6 +34,19 @@ const mails = {
       + `- total : ${order.totalPrice.toFixed(2).replace('.', ',')} €\n\n`
       + `Vous pouvez suivre, modifier ou annuler votre commande tant qu'elle n'est pas acceptée : ${FRONT_URL}/account\n\nJulie et José`,
   }),
+  equipmentReturn: (order) => sendSafely({
+    to: order.customerEmail,
+    subject: `Commande ${order.orderNumber} : restitution du matériel`,
+    text: `Bonjour ${order.customerFirstName},\n\nDu matériel vous a été prêté pour votre commande ${order.orderNumber}. `
+      + 'Merci de prendre contact avec nous pour organiser sa restitution sous 10 jours ouvrés. '
+      + 'Passé ce délai, des frais de 600 € vous seront facturés, conformément à nos conditions générales de vente.\n\nJulie et José',
+  }),
+  orderCompleted: (order) => sendSafely({
+    to: order.customerEmail,
+    subject: `Commande ${order.orderNumber} terminée : donnez votre avis`,
+    text: `Bonjour ${order.customerFirstName},\n\nVotre commande ${order.orderNumber} est terminée. Merci de votre confiance !\n`
+      + `Votre avis nous intéresse : connectez-vous à votre espace pour le donner : ${FRONT_URL}/account/orders/${order.id}\n\nJulie et José`,
+  }),
   employeeCreated: (employee) => sendSafely({
     to: employee.email,
     subject: 'Votre compte employé Vite & Gourmand',
