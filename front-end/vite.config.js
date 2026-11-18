@@ -16,7 +16,10 @@ export default defineConfig({
   },
   server: {
     port: 8080,
-    hmr: true,
-    usePolling: true
+    strictPort: true,
+    // Polling is needed to see file changes from Docker on Windows / WSL
+    watch: {
+      usePolling: true
+    }
   },
 })
