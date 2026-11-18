@@ -64,4 +64,16 @@ async function updateProfile(id, u) {
   );
 }
 
-module.exports = { updateProfile, findById, findByEmailWithHash, findHashById, emailExists, create, updatePassword };
+async function findEmployees() {
+  const { rows } = await query(
+    `SELECT ${USER_FIELDS} FROM app_user u JOIN role r USING (role_id)
+     WHERE r.label = 'employee' ORDER BY u.last_name, u.first_name`
+  );
+  return rows;
+}
+
+async function setActive(id, isActive) {
+  await query('UPDATE app_user SET is_active = $2, updated_at = now() WHERE user_id = $1', [id, isActive]);
+}
+
+module.exports = { findEmployees, setActive, updateProfile, findById, findByEmailWithHash, findHashById, emailExists, create, updatePassword };

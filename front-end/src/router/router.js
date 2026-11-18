@@ -21,6 +21,7 @@ import StaffHours from '@/views/staff/StaffHours.vue'
 import StaffOrders from '@/views/staff/StaffOrders.vue'
 import StaffReviews from '@/views/staff/StaffReviews.vue'
 import StaffOrderDetail from '@/views/staff/StaffOrderDetail.vue'
+import AdminEmployees from '@/views/admin/AdminEmployees.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -66,6 +67,16 @@ const routes = [
     ]
   },
   { path: '/profile', redirect: '/account' },
+  // Administrator area (same layout as the employee area)
+  {
+    path: '/admin',
+    component: StaffLayout,
+    meta: { requiresAuth: true, roles: ['admin'] },
+    children: [
+      { path: '', redirect: '/admin/employees' },
+      { path: 'employees', name: 'AdminEmployees', component: AdminEmployees }
+    ]
+  },
   // Employee area; the administrator has the same rights (KAN-66)
   {
     path: '/employee',
