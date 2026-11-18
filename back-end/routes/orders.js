@@ -10,5 +10,7 @@ router.use(requireAuth, requireRole('user'));
 router.get('/', orders.listMine);
 router.post('/', orders.create);
 router.get('/:id', orders.getMine);
+router.put('/:id', orders.editMine); // only while 'pending'
+router.post('/:id/cancel', orders.cancelMine); // only while 'pending'
 
 module.exports = router;

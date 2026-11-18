@@ -3,7 +3,7 @@ const { query } = require('../config/db');
 
 const ORDER_FIELDS = `
   o.order_id AS id, o.order_number AS "orderNumber", o.user_id AS "userId", o.menu_id AS "menuId",
-  m.title AS "menuTitle", o.people,
+  m.title AS "menuTitle", m.min_people AS "menuMinPeople", o.people,
   o.event_address AS address, o.event_postcode AS postcode, o.event_city AS city,
   o.event_date AS date, to_char(o.event_time, 'HH24:MI') AS time, o.place_details AS place,
   o.delivery_km AS "deliveryKm", o.menu_price AS "menuPrice", o.discount,
@@ -91,6 +91,24 @@ async function findByUser(userId) {
   return rows;
 }
 
+async function updateEvent(id, o, db) {
+  await query(
+    `UPDATE customer_order SET
+       people = $2, event_address = $3, event_postcode = $4, event_city = $5,
+       event_date = $6, event_time = $7, place_details = $8, delivery_km = $9,
+       menu_price = $10, discount = $11, delivery_price = $12, total_price = $13, updated_at = now()
+     WHERE order_id = $1`,
+    [id, o.people, o.address, o.postcode, o.city, o.date, o.time, o.place, o.deliveryKm,
+      o.menuPrice, o.discount, o.deliveryPrice, o.totalPrice],
+    db
+  );
+}
+
+async function updateStatus(id, status, db) {
+  await query('UPDATE customer_order SET status = $2, updated_at = now() WHERE order_id = $1', [id, status], db);
+}
+
 module.exports = {
+  updateEvent, updateStatus,
   ORDER_FIELDS, CUSTOMER_FIELDS, ORDER_FROM, nextOrderNumber, create, addHistory, findById, findHistory, findByUser,
 };
