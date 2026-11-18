@@ -5,6 +5,7 @@ const authRoutes = require('./auth');
 const menuRoutes = require('./menus');
 const orderRoutes = require('./orders');
 const userRoutes = require('./users');
+const staffRoutes = require('./staff');
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.use('/auth', authRoutes);
 router.use('/menus', menuRoutes);
 router.use('/orders', orderRoutes);
 router.use('/users', userRoutes);
+router.use('/staff', staffRoutes);
 router.use('/', referenceRoutes);
 
 module.exports = router;

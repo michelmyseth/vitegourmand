@@ -14,6 +14,8 @@ import AccountLayout from '@/views/account/AccountLayout.vue'
 import AccountOrders from '@/views/account/AccountOrders.vue'
 import AccountOrderDetail from '@/views/account/AccountOrderDetail.vue'
 import AccountProfile from '@/views/account/AccountProfile.vue'
+import StaffLayout from '@/views/staff/StaffLayout.vue'
+import StaffMenus from '@/views/staff/StaffMenus.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -59,6 +61,16 @@ const routes = [
     ]
   },
   { path: '/profile', redirect: '/account' },
+  // Employee area; the administrator has the same rights (KAN-66)
+  {
+    path: '/employee',
+    component: StaffLayout,
+    meta: { requiresAuth: true, roles: ['employee', 'admin'] },
+    children: [
+      { path: '', redirect: '/employee/menus' },
+      { path: 'menus', name: 'StaffMenus', component: StaffMenus }
+    ]
+  },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
   {
