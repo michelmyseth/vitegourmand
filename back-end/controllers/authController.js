@@ -1,5 +1,6 @@
 const authService = require('../services/authService');
-const { setAuthCookie } = require('../services/tokenService');
+const { setAuthCookie, clearAuthCookie, revokeToken } = require('../services/tokenService');
+const { COOKIE_NAME } = require('../config/auth');
 
 async function register(req, res) {
   const user = await authService.register(req.body);
@@ -23,9 +24,16 @@ async function resetPassword(req, res) {
   res.json({ message: 'Votre mot de passe a été modifié.' });
 }
 
+async function logout(req, res) {
+  const token = req.cookies?.[COOKIE_NAME];
+  if (token) await revokeToken(token);
+  clearAuthCookie(res);
+  res.json({ message: 'Vous êtes déconnecté.' });
+}
+
 /** Current user (null for a visitor) */
 function me(req, res) {
   res.json({ user: req.user });
 }
 
-module.exports = { register, login, forgotPassword, resetPassword, me };
+module.exports = { register, login, forgotPassword, resetPassword, logout, me };

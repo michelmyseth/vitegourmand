@@ -6,11 +6,7 @@ const { JWT_SECRET, COOKIE_NAME } = require('../config/auth');
 const userRepository = require('../repositories/userRepository');
 const { unauthorized, forbidden } = require('../utils/httpError');
 
-// Hook used by the logout (KAN-36) to refuse revoked tokens
-let isTokenRevoked = async () => false;
-function setRevocationCheck(fn) {
-  isTokenRevoked = fn;
-}
+const { isTokenRevoked } = require('../services/tokenService');
 
 /** Decodes the cookie token and loads the user. Returns null if absent / invalid. */
 async function readUser(req) {
@@ -60,4 +56,4 @@ function requireRole(...roles) {
 const requireEmployee = requireRole('employee', 'admin');
 const requireAdmin = requireRole('admin');
 
-module.exports = { requireAuth, optionalAuth, requireRole, requireEmployee, requireAdmin, setRevocationCheck };
+module.exports = { requireAuth, optionalAuth, requireRole, requireEmployee, requireAdmin };
