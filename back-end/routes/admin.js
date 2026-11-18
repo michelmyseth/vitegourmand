@@ -10,5 +10,6 @@ router.use(requireAuth, requireAdmin);
 // Employee accounts (KAN-64, KAN-65). No route can create an administrator.
 router.get('/employees', admin.listEmployees);
 router.post('/employees', admin.createEmployee);
+router.put('/employees/:id/active', admin.setEmployeeActive); // { isActive: false } disables the account
 
 module.exports = router;
