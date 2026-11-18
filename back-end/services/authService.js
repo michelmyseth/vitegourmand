@@ -1,9 +1,12 @@
 // Sign-up, login, password reset
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/userRepository');
 const { validator } = require('../utils/validate');
-const { conflict, unauthorized, forbidden } = require('../utils/httpError');
-const { mails } = require('./mailService');
+const { conflict, unauthorized, forbidden, badRequest } = require('../utils/httpError');
+const passwordResetRepository = require('../repositories/passwordResetRepository');
+const { withTransaction } = require('../config/db');
+const { mails, FRONT_URL } = require('./mailService');
 
 const BCRYPT_COST = 10;
 
@@ -64,4 +67,39 @@ async function login(body) {
   return publicUser;
 }
 
-module.exports = { register, login, readProfileFields, hashPassword };
+const RESET_TTL_MS = 60 * 60 * 1000; // 1 hour
+const sha256 = (value) => crypto.createHash('sha256').update(value).digest('hex');
+
+/** Always resolves the same way, whether the email exists or not */
+async function forgotPassword(body) {
+  const v = validator(body);
+  const email = v.email('email');
+  v.throwIfErrors();
+
+  const user = await userRepository.findByEmailWithHash(email);
+  if (!user || !user.isActive) return;
+
+  // Random token sent by email; only its hash is stored in the database
+  const token = crypto.randomBytes(32).toString('hex');
+  await passwordResetRepository.create(user.id, sha256(token), new Date(Date.now() + RESET_TTL_MS));
+  mails.passwordReset(user, `${FRONT_URL}/reset-password?token=${token}`);
+}
+
+async function resetPassword(body) {
+  const v = validator(body);
+  const password = v.password('password');
+  const token = typeof body.token === 'string' ? body.token : '';
+  v.throwIfErrors();
+
+  await withTransaction(async (client) => {
+    const reset = /^[a-f0-9]{64}$/.test(token)
+      ? await passwordResetRepository.findValid(sha256(token), client)
+      : null;
+    if (!reset) throw badRequest('Ce lien est invalide ou a expiré. Faites une nouvelle demande.');
+
+    await userRepository.updatePassword(reset.userId, await hashPassword(password), client);
+    await passwordResetRepository.useAllForUser(reset.userId, client);
+  });
+}
+
+module.exports = { register, login, forgotPassword, resetPassword, readProfileFields, hashPassword };
