@@ -49,14 +49,14 @@ defineProps({
 }
 
 .current .dot {
-  background: #2e7d32;
-  border-color: #2e7d32;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 time {
   display: block;
   font-size: 0.9rem;
-  color: #555;
+  color: var(--color-text-muted);
   margin-top: 2px;
 }
 
@@ -67,6 +67,6 @@ time {
 }
 
 .meta {
-  color: #555;
+  color: var(--color-text-muted);
 }
 </style>

@@ -43,7 +43,7 @@ defineProps({
   grid-template-columns: 130px 1fr;
   gap: 8px;
   padding: 6px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .details dt {

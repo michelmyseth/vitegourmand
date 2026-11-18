@@ -91,7 +91,7 @@ async function login() {
 
 form {
   background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 20px;
 }

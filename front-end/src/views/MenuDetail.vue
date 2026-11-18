@@ -169,7 +169,7 @@ async function order() {
 .back-link {
   display: inline-block;
   margin-bottom: 16px;
-  color: #2e7d32;
+  color: var(--color-primary);
   text-decoration: underline;
 }
 
@@ -191,8 +191,8 @@ async function order() {
 }
 
 .badges li {
-  background: #e8f5e9;
-  color: #1b5e20;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
   padding: 4px 12px;
   border-radius: 999px;
   font-size: 0.9rem;
@@ -226,7 +226,7 @@ async function order() {
 }
 
 .thumb.active {
-  border-color: #2e7d32;
+  border-color: var(--color-primary);
 }
 
 .thumb img {
@@ -249,7 +249,7 @@ async function order() {
   display: flex;
   gap: 8px;
   padding: 6px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .facts dt {
@@ -290,11 +290,11 @@ async function order() {
   padding: 12px;
   font-size: 1.1rem;
   font-weight: bold;
-  background: #2e7d32;
+  background: var(--color-primary);
 }
 
 .order-btn:hover {
-  background: #1b5e20;
+  background: var(--color-primary-dark);
 }
 
 .order-btn:disabled {
@@ -354,7 +354,7 @@ async function order() {
   display: flex;
   flex-direction: column;
   padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .course li:last-child {
@@ -367,12 +367,12 @@ async function order() {
 
 .allergens {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--color-text-muted);
 }
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

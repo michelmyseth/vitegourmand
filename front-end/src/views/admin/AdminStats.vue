@@ -179,7 +179,7 @@ onMounted(async () => {
 
 .table-view summary {
   cursor: pointer;
-  color: #1b5e20;
+  color: var(--color-primary-dark);
   text-decoration: underline;
   margin-bottom: 8px;
 }

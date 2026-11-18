@@ -1,3 +1,19 @@
+:root {
+  /* Colour palette: change a colour here, it changes everywhere */
+  --color-primary: #2e7d32;
+  --color-primary-dark: #1b5e20;
+  --color-primary-light: #e8f5e9;
+  --color-focus: #1565c0;
+  --color-error: #c62828;
+  --color-error-light: #ffebee;
+  --color-text: #333;
+  --color-text-muted: #555;
+  --color-border: #ddd;
+  --color-line: #eee;
+  --color-bg: #f9f9f9;
+  --color-surface: #fff;
+}
+
 /* Basic reset */
 * {
   margin: 0;
@@ -8,8 +24,8 @@
 body {
   font-family: 'Arial', sans-serif;
   line-height: 1.6;
-  background-color: #f9f9f9;
-  color: #333;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 /* Global container */
@@ -30,14 +46,14 @@ button {
   cursor: pointer;
   padding: 0.5rem 1rem;
   border: none;
-  background-color: #4CAF50;
+  background-color: var(--color-primary);
   color: white;
   border-radius: 5px;
   transition: background 0.3s;
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: var(--color-primary-dark);
 }
 
 /* Links */
@@ -118,17 +134,17 @@ input, select {
 }
 
 [aria-invalid='true'] {
-  border-color: #c62828 !important;
+  border-color: var(--color-error) !important;
 }
 
 .err {
-  color: #c62828;
+  color: var(--color-error);
   font-size: 0.9rem;
   margin-top: 4px;
 }
 
 .help {
-  color: #555;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   margin-top: 4px;
 }
@@ -141,20 +157,20 @@ input, select {
 }
 
 .alert-error {
-  background: #ffebee;
-  border-color: #c62828;
+  background: var(--color-error-light);
+  border-color: var(--color-error);
   color: #8e0000;
 }
 
 .alert-success {
-  background: #e8f5e9;
-  border-color: #2e7d32;
-  color: #1b5e20;
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .alert-info {
   background: #e3f2fd;
-  border-color: #1565c0;
+  border-color: var(--color-focus);
   color: #0d47a1;
 }
 
@@ -163,7 +179,7 @@ input, select {
   padding: 10px 18px;
   border-radius: 6px;
   border: none;
-  background: #2e7d32;
+  background: var(--color-primary);
   color: #fff;
   font: inherit;
   font-weight: bold;
@@ -172,7 +188,7 @@ input, select {
 }
 
 .btn:hover {
-  background: #1b5e20;
+  background: var(--color-primary-dark);
 }
 
 .btn:disabled {
@@ -182,16 +198,16 @@ input, select {
 
 .btn-secondary {
   background: #fff;
-  color: #2e7d32;
-  border: 2px solid #2e7d32;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
 }
 
 .btn-secondary:hover {
-  background: #e8f5e9;
+  background: var(--color-primary-light);
 }
 
 .btn-danger {
-  background: #c62828;
+  background: var(--color-error);
 }
 
 .btn-danger:hover {
@@ -204,13 +220,13 @@ input, select {
 }
 
 .link {
-  color: #1b5e20;
+  color: var(--color-primary-dark);
   text-decoration: underline;
 }
 
 .panel {
   background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 16px 20px;
   margin-bottom: 20px;
@@ -265,7 +281,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
