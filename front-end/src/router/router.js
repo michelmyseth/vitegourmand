@@ -22,6 +22,7 @@ import StaffOrders from '@/views/staff/StaffOrders.vue'
 import StaffReviews from '@/views/staff/StaffReviews.vue'
 import StaffOrderDetail from '@/views/staff/StaffOrderDetail.vue'
 import AdminEmployees from '@/views/admin/AdminEmployees.vue'
+import AdminStats from '@/views/admin/AdminStats.vue'
 import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const routes = [
@@ -73,7 +74,8 @@ const routes = [
     component: StaffLayout,
     meta: { requiresAuth: true, roles: ['admin'] },
     children: [
-      { path: '', redirect: '/admin/employees' },
+      { path: '', redirect: '/admin/stats' },
+      { path: 'stats', name: 'AdminStats', component: AdminStats },
       { path: 'employees', name: 'AdminEmployees', component: AdminEmployees }
     ]
   },

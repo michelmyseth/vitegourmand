@@ -12,4 +12,7 @@ router.get('/employees', admin.listEmployees);
 router.post('/employees', admin.createEmployee);
 router.put('/employees/:id/active', admin.setEmployeeActive); // { isActive: false } disables the account
 
+// Statistics from MongoDB (KAN-67, KAN-68): ?menuId=&from=YYYY-MM-DD&to=YYYY-MM-DD
+router.get('/stats', admin.stats);
+
 module.exports = router;
