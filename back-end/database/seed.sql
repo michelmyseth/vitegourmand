@@ -89,33 +89,34 @@ JOIN allergen a ON a.label = v.allergen;
 INSERT INTO menu (title, description, theme_id, diet_id, min_people, min_price, stock, conditions)
 SELECT v.title, v.description, t.theme_id, d.diet_id, v.min_people, v.min_price, v.stock, v.conditions
 FROM (VALUES
-  ('Menu de Noël',
+  (1, 'Menu de Noël',
    'Un repas de fête traditionnel pour réunir toute la famille autour de la table.',
    'Noël', 'Classique', 6, 180.00, 5,
    'Commande au minimum 2 semaines avant la prestation. À conserver au réfrigérateur (entre 0 et 4 °C) et à consommer dans les 48 h.'),
-  ('Menu de Pâques',
+  (2, 'Menu de Pâques',
    'Un menu printanier autour de l''agneau et du chocolat.',
    'Pâques', 'Classique', 4, 110.00, 8,
    'Commande au minimum 10 jours avant la prestation. À conserver au réfrigérateur.'),
-  ('Menu Classique',
+  (3, 'Menu Classique',
    'Nos incontournables de saison, pour un repas simple et généreux.',
    'Classique', 'Classique', 2, 45.00, 20,
    'Commande au minimum 3 jours avant la prestation.'),
-  ('Menu Végétarien',
+  (4, 'Menu Végétarien',
    'Une cuisine de saison sans viande ni poisson, pleine de saveurs.',
    'Classique', 'Végétarien', 2, 40.00, 15,
    'Commande au minimum 3 jours avant la prestation.'),
-  ('Menu Vegan',
+  (5, 'Menu Vegan',
    '100 % végétal, sans aucun produit d''origine animale.',
    'Classique', 'Vegan', 2, 42.00, 0,
    'Commande au minimum 5 jours avant la prestation.'),
-  ('Menu Événement',
+  (6, 'Menu Événement',
    'Pour vos réceptions, anniversaires et événements d''entreprise. Matériel de service prêté.',
    'Événement', 'Classique', 20, 500.00, 3,
    'Commande au minimum 3 semaines avant la prestation. Le matériel prêté doit être restitué sous 10 jours ouvrés, sinon 600 € de frais seront facturés (voir CGV).')
-) AS v (title, description, theme, diet, min_people, min_price, stock, conditions)
+) AS v (ord, title, description, theme, diet, min_people, min_price, stock, conditions)
 JOIN theme t ON t.label = v.theme
-JOIN diet d ON d.label = v.diet;
+JOIN diet d ON d.label = v.diet
+ORDER BY v.ord; -- keep ids in this order (same ids as the front-end mock data)
 
 INSERT INTO menu_dish (menu_id, dish_id)
 SELECT m.menu_id, d.dish_id
