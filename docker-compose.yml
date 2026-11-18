@@ -1,0 +1,92 @@
+# Vite & Gourmand — local development stack
+# Start everything:  docker compose up -d
+# Full documentation: README.md (section "Lancer le projet avec Docker")
+
+name: vitegourmand
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vitegourmand-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vitegourmand}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vitegourmand}
+      POSTGRES_DB: ${POSTGRES_DB:-vitegourmand}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      # Run once, on the first start (empty volume), in alphabetical order
+      - ./back-end/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./back-end/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:7.0
+    container_name: vitegourmand-mongo
+    restart: unless-stopped
+    ports:
+      - "${MONGO_HOST_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  back:
+    image: node:22-alpine
+    container_name: vitegourmand-back
+    restart: unless-stopped
+    working_dir: /app
+    # npm ci installs the exact versions of package-lock.json; nodemon -L polls for changes
+    command: sh -c "npm ci && npx nodemon -L server.js"
+    environment:
+      PORT: 3000
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${POSTGRES_USER:-vitegourmand}
+      PG_PASSWORD: ${POSTGRES_PASSWORD:-vitegourmand}
+      PG_DB: ${POSTGRES_DB:-vitegourmand}
+      MONGO_URI: mongodb://mongo:27017/vitegourmand
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-the-env-file}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./back-end:/app
+      # Linux node_modules stay in the container (not mixed with the Windows ones)
+      - back-node-modules:/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  front:
+    image: node:22-alpine
+    container_name: vitegourmand-front
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    environment:
+      # Used by the browser, so it is the address seen from the host
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./front-end:/app
+      - front-node-modules:/app/node_modules
+    depends_on:
+      - back
+
+volumes:
+  pg-data:
+  mongo-data:
+  back-node-modules:
+  front-node-modules:

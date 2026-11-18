@@ -1,24 +1,37 @@
 import { ref } from 'vue'
-import { API_URL } from '@/api'
+import { api } from '@/services/http'
 
 // Shared between all components: the logged-in user (null when logged out)
 const user = ref(null)
 
+/** Home page of each role after login */
+export function homeForRole(role) {
+  if (role === 'admin') return '/admin'
+  if (role === 'employee') return '/employee'
+  return '/account'
+}
+
 export function useAuth() {
   async function fetchUser() {
     try {
-      const res = await fetch(`${API_URL}/api/auth/check`, { credentials: 'include' })
-      user.value = res.ok ? (await res.json()).user : null
+      user.value = (await api('/api/auth/me')).user
     } catch {
       user.value = null
     }
     return user.value
   }
 
-  async function logout() {
-    await fetch(`${API_URL}/api/auth/logout`, { method: 'POST', credentials: 'include' })
-    user.value = null
+  function setUser(u) {
+    user.value = u
   }
 
-  return { user, fetchUser, logout }
+  async function logout() {
+    try {
+      await api('/api/auth/logout', { method: 'POST' })
+    } finally {
+      user.value = null
+    }
+  }
+
+  return { user, fetchUser, setUser, logout }
 }

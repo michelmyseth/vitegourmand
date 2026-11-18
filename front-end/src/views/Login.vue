@@ -2,35 +2,37 @@
   <div class="page-root">
     <Header />
 
-    <main class="page-content">
-      <div class="login-container">
+    <main class="page-main">
+      <div class="container login">
         <h1>Connexion</h1>
 
-        <form @submit.prevent="login">
-          <input
-            type="email"
-            v-model="email"
-            placeholder="Email"
-            required
-          />
+        <p v-if="route.query.reset === 'ok'" class="alert alert-success" role="status">
+          Votre mot de passe a été modifié. Vous pouvez vous connecter.
+        </p>
+        <p v-if="errorMessage" class="alert alert-error" role="alert">{{ errorMessage }}</p>
 
-          <input
-            type="password"
-            v-model="password"
-            placeholder="Mot de passe"
-            required
-          />
+        <form novalidate @submit.prevent="login">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" v-model.trim="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="password">Mot de passe</label>
+            <input id="password" v-model="password" type="password" autocomplete="current-password" required />
+          </div>
 
-          <button type="submit">Se connecter</button>
+          <button type="submit" class="btn" :disabled="loading">{{ loading ? 'Connexion…' : 'Se connecter' }}</button>
+
+          <p class="forgot">
+            <router-link to="/forgot-password" class="link">Mot de passe oublié ?</router-link>
+          </p>
         </form>
 
-        <p v-if="errorMessage" class="error">
-          {{ errorMessage }}
-        </p>
-
-        <p class="register-link">
-          Nouvelle inscription ?
-          <router-link :to="{ path: '/register', query: route.query }">Cliquez ici</router-link>
+        <p class="switch">
+          Pas encore de compte ?
+          <router-link :to="{ path: '/register', query: route.query.redirect ? { redirect: route.query.redirect } : {} }" class="link">
+            Créer un compte
+          </router-link>
         </p>
       </div>
     </main>
@@ -39,93 +41,67 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
+import { api } from '@/services/http'
+import { useAuth, homeForRole } from '@/composables/useAuth'
+import { safeRedirect } from '@/utils/validation'
 
 const route = useRoute()
 const router = useRouter()
+const { setUser } = useAuth()
 
-// Only allow internal paths to avoid open redirects
-const redirect = typeof route.query.redirect === 'string'
-  && route.query.redirect.startsWith('/')
-  && !route.query.redirect.startsWith('//')
-  ? route.query.redirect
-  : '/profile'
-
-const email = ref<string>('')
-const password = ref<string>('')
-const errorMessage = ref<string>('')
+const email = ref('')
+const password = ref('')
+const errorMessage = ref('')
+const loading = ref(false)
 
 async function login() {
   errorMessage.value = ''
+  if (!email.value || !password.value) {
+    errorMessage.value = 'Saisissez votre email et votre mot de passe.'
+    return
+  }
 
+  loading.value = true
   try {
-    const res = await fetch('http://localhost:3000/api/auth/login', {
+    const { user } = await api('/api/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: email.value,
-        password: password.value
-      }),
-      credentials: 'include'
+      body: { email: email.value, password: password.value }
     })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-      errorMessage.value = data.error || 'Erreur de connexion'
-      return
-    }
-
-    router.push(redirect)
+    setUser(user)
+    // Page asked before login (e.g. an order), otherwise the space of the role
+    router.push(safeRedirect(route.query.redirect, homeForRole(user.role)))
   } catch (err) {
-    errorMessage.value = 'Erreur réseau'
+    errorMessage.value = err.message
+    password.value = ''
+  } finally {
+    loading.value = false
   }
 }
 </script>
 
 <style scoped>
-.page-root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.login {
+  max-width: 420px;
 }
 
-.page-content {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+form {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
 }
 
-.login-container {
-  max-width: 400px;
+form .btn {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
 }
 
-input {
-  width: 100%;
-  margin: 10px 0;
-  padding: 8px;
-}
-
-button {
-  padding: 10px 15px;
-  cursor: pointer;
-}
-
-.error {
-  color: red;
-}
-
-.register-link {
-  margin-top: 15px;
+.forgot,
+.switch {
+  margin-top: 16px;
 }
 </style>

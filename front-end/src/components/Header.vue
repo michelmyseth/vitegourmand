@@ -18,7 +18,7 @@
       <router-link to="/menus">Menus</router-link>
       <router-link to="/contact">Contact</router-link>
       <template v-if="user">
-        <router-link to="/profile">Mon espace</router-link>
+        <router-link :to="homeForRole(user.role)">{{ spaceLabel }}</router-link>
         <button type="button" class="navbar-btn" @click="onLogout">Déconnexion</button>
       </template>
       <router-link v-else to="/login" class="navbar-btn">Connexion</router-link>
@@ -27,14 +27,16 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth, homeForRole } from '@/composables/useAuth'
 
 const { user, fetchUser, logout } = useAuth()
 const route = useRoute()
 const router = useRouter()
 const open = ref(false)
+
+const spaceLabel = computed(() => ({ admin: 'Espace admin', employee: 'Espace employé' })[user.value?.role] || 'Mon espace')
 
 onMounted(fetchUser)
 
