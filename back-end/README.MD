@@ -91,3 +91,28 @@ npm run dev
 ```
 
 Le serveur sera accessible sur : http://localhost:3000
+
+---
+
+## 🧱 Architecture de l'API
+
+```
+back-end/
+├── server.js          # démarrage : connexion PostgreSQL + MongoDB, puis écoute du port
+├── app.js             # application Express : middlewares globaux, routes /api, gestion des erreurs
+├── config/            # connexions aux bases (db.js = pool PostgreSQL, mongo.js = MongoDB)
+├── routes/            # déclaration des routes (URL + middlewares + contrôleur)
+├── controllers/       # lisent la requête, appellent le service, renvoient la réponse JSON
+├── services/          # règles métier (prix, statuts, droits…)
+├── repositories/      # accès aux données : requêtes SQL paramétrées uniquement
+├── models/            # modèles MongoDB (statistiques)
+├── middlewares/       # authentification, rôles, erreurs
+└── utils/             # validation des entrées, erreurs HTTP
+```
+
+- **Requêtes préparées** : toutes les requêtes SQL passent par `query(text, params)` avec des paramètres `$1, $2…` ; les valeurs ne sont jamais concaténées dans le SQL (pas d'injection SQL).
+- **Transactions** : `withTransaction(fn)` exécute plusieurs requêtes dans une même transaction (ex. commande + stock).
+- **Erreurs centralisées** : les services lèvent des `HttpError` (400, 401, 403, 404, 409) ; `middlewares/errorHandler.js` les transforme en réponse `{ error, details }`. Les erreurs inattendues renvoient un 500 sans détail technique.
+- **Validation côté serveur** : `utils/validate.js` (email, téléphone, mot de passe, dates…), même si le front-end valide aussi.
+
+Route de test : `GET /api/health` → `{ "status": "ok" }`.
