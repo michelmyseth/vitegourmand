@@ -4,7 +4,27 @@
     <main class="order container">
       <h1>Commander un menu</h1>
 
-      <form class="order-form" novalidate @submit.prevent="submit">
+      <div v-if="step === 'done'" class="confirmed" role="status">
+        <h2>Merci, votre demande est prête !</h2>
+        <p>
+          L'enregistrement de la commande sera branché sur l'API (KAN-51).
+          Vous recevrez alors un email de confirmation.
+        </p>
+        <router-link to="/menus">Retour aux menus</router-link>
+      </div>
+
+      <OrderSummary
+        v-else-if="step === 'summary'"
+        :order="form"
+        :menu="menu"
+        :address="address"
+        :delivery="delivery"
+        :price="price"
+        @back="step = 'form'"
+        @confirm="confirm"
+      />
+
+      <form v-show="step === 'form'" class="order-form" novalidate @submit.prevent="submit">
         <!-- Customer -->
         <fieldset>
           <legend>Vos coordonnées</legend>
@@ -128,6 +148,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
+import OrderSummary from '@/components/OrderSummary.vue'
 import { menus, getMenu } from '@/data/menus'
 import { useAuth } from '@/composables/useAuth'
 import { computeOrderPrice, formatEuros } from '@/utils/pricing'
@@ -149,6 +170,7 @@ const form = reactive({
   place: ''
 })
 const errors = reactive({})
+const step = ref('form') // form -> summary -> done
 
 const menu = computed(() => getMenu(form.menuId))
 
@@ -236,7 +258,13 @@ function submit() {
     first?.focus()
     return
   }
-  // Next step: price summary before confirmation (KAN-50)
+  step.value = 'summary'
+  window.scrollTo({ top: 0 })
+}
+
+function confirm() {
+  // TODO KAN-51: POST /api/orders (server recomputes the price and checks the stock)
+  step.value = 'done'
 }
 </script>
 
@@ -372,6 +400,18 @@ button:focus-visible {
 
 .submit:hover {
   background: #1b5e20;
+}
+
+.confirmed {
+  background: #e8f5e9;
+  border-left: 6px solid #2e7d32;
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.confirmed a {
+  color: #1b5e20;
+  text-decoration: underline;
 }
 
 @media (max-width: 640px) {
