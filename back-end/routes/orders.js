@@ -12,5 +12,6 @@ router.post('/', orders.create);
 router.get('/:id', orders.getMine);
 router.put('/:id', orders.editMine); // only while 'pending'
 router.post('/:id/cancel', orders.cancelMine); // only while 'pending'
+router.post('/:id/review', orders.reviewMine); // only once, on a 'completed' order
 
 module.exports = router;

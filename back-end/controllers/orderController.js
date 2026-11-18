@@ -1,4 +1,5 @@
 const orderService = require('../services/orderService');
+const reviewService = require('../services/reviewService');
 const { parseId } = require('../utils/validate');
 
 async function create(req, res) {
@@ -21,4 +22,8 @@ async function cancelMine(req, res) {
   res.json(await orderService.cancelMyOrder(req.user, parseId(req.params.id)));
 }
 
-module.exports = { create, listMine, getMine, editMine, cancelMine };
+async function reviewMine(req, res) {
+  res.status(201).json(await reviewService.createReview(req.user, parseId(req.params.id), req.body));
+}
+
+module.exports = { create, listMine, getMine, editMine, cancelMine, reviewMine };
