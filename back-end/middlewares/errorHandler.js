@@ -12,6 +12,17 @@ function errorHandler(err, req, res, next) {
     return res.status(err.status).json({ error: err.message, details: err.details });
   }
 
+  // Upload errors (file too large...)
+  if (err.name === 'MulterError') {
+    const message = err.code === 'LIMIT_FILE_SIZE' ? 'Image trop lourde (2 Mo maximum).' : 'Envoi du fichier refusé.';
+    return res.status(400).json({ error: message });
+  }
+
+  // Errors of express.static (missing file, malicious path...)
+  if ((err.expose || err.code === 'ENOENT') && err.status >= 400 && err.status < 500) {
+    return res.status(err.status).json({ error: err.status === 404 ? 'Fichier introuvable' : 'Requête refusée' });
+  }
+
   // Invalid JSON body
   if (err.type === 'entity.parse.failed') {
     return res.status(400).json({ error: 'Corps de requête JSON invalide' });

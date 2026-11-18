@@ -111,4 +111,90 @@ async function changeStock(id, delta, db) {
   await query('UPDATE menu SET stock = stock + $2, updated_at = now() WHERE menu_id = $1', [id, delta], db);
 }
 
-module.exports = { findAll, findById, findForOrder, findForOrderReadOnly, changeStock, MENU_FIELDS, MENU_FROM };
+// ---------------------------------------------------------------
+// Employee management (KAN-57)
+// ---------------------------------------------------------------
+
+async function titleExists(title, exceptId = null) {
+  const { rows } = await query(
+    'SELECT 1 FROM menu WHERE lower(title) = lower($1) AND menu_id IS DISTINCT FROM $2',
+    [title, exceptId]
+  );
+  return rows.length > 0;
+}
+
+async function create(m, db) {
+  const { rows } = await query(
+    `INSERT INTO menu (title, description, theme_id, diet_id, min_people, min_price, conditions, stock, is_active)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING menu_id AS id`,
+    [m.title, m.description, m.themeId, m.dietId, m.minPeople, m.price, m.conditions, m.stock, m.isActive],
+    db
+  );
+  return rows[0].id;
+}
+
+async function update(id, m, db) {
+  const { rowCount } = await query(
+    `UPDATE menu SET title = $2, description = $3, theme_id = $4, diet_id = $5, min_people = $6,
+       min_price = $7, conditions = $8, stock = $9, is_active = $10, updated_at = now()
+     WHERE menu_id = $1`,
+    [id, m.title, m.description, m.themeId, m.dietId, m.minPeople, m.price, m.conditions, m.stock, m.isActive],
+    db
+  );
+  return rowCount > 0;
+}
+
+/** Replaces the dishes of a menu */
+async function setDishes(id, dishIds, db) {
+  await query('DELETE FROM menu_dish WHERE menu_id = $1', [id], db);
+  if (dishIds.length) {
+    await query(
+      'INSERT INTO menu_dish (menu_id, dish_id) SELECT $1, unnest($2::int[])',
+      [id, dishIds],
+      db
+    );
+  }
+}
+
+async function hasOrders(id) {
+  const { rows } = await query('SELECT 1 FROM customer_order WHERE menu_id = $1 LIMIT 1', [id]);
+  return rows.length > 0;
+}
+
+async function remove(id) {
+  await query('DELETE FROM menu WHERE menu_id = $1', [id]);
+}
+
+async function deactivate(id) {
+  await query('UPDATE menu SET is_active = FALSE, updated_at = now() WHERE menu_id = $1', [id]);
+}
+
+async function addImage(menuId, url, alt) {
+  const { rows } = await query(
+    `INSERT INTO menu_image (menu_id, url, alt_text, position)
+     SELECT $1, $2, $3, coalesce(max(position), 0) + 1 FROM menu_image WHERE menu_id = $1
+     RETURNING image_id AS id, url, alt_text AS alt, position`,
+    [menuId, url, alt]
+  );
+  return rows[0];
+}
+
+async function removeImage(menuId, imageId) {
+  const { rows } = await query(
+    'DELETE FROM menu_image WHERE menu_id = $1 AND image_id = $2 RETURNING url',
+    [menuId, imageId]
+  );
+  return rows[0] || null;
+}
+
+async function imageUrls(menuId) {
+  const { rows } = await query('SELECT url FROM menu_image WHERE menu_id = $1', [menuId]);
+  return rows.map((r) => r.url);
+}
+
+module.exports = {
+  findAll, findById, findForOrder, findForOrderReadOnly, changeStock,
+  titleExists, create, update, setDishes, hasOrders, remove, deactivate,
+  addImage, removeImage, imageUrls,
+  MENU_FIELDS, MENU_FROM,
+};
