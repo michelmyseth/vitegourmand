@@ -197,4 +197,39 @@ CREATE INDEX customer_order_menu_idx ON customer_order (menu_id);
 CREATE INDEX customer_order_status_idx ON customer_order (status);
 CREATE INDEX order_status_history_order_idx ON order_status_history (order_id, changed_at);
 
+-- -------------------------------------------------------------
+-- Reviews
+-- -------------------------------------------------------------
+
+-- One review per completed order; displayed on the home page once approved
+CREATE TABLE review (
+  review_id     INT         GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  order_id      INT         NOT NULL UNIQUE REFERENCES customer_order (order_id) ON DELETE CASCADE,
+  user_id       INT         NOT NULL REFERENCES app_user (user_id) ON DELETE CASCADE,
+  rating        SMALLINT    NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment       TEXT        NOT NULL CHECK (length(comment) BETWEEN 1 AND 1000),
+  status        VARCHAR(10) NOT NULL DEFAULT 'pending'
+                CHECK (status IN ('pending', 'approved', 'rejected')),
+  moderated_by  INT         REFERENCES app_user (user_id) ON DELETE SET NULL,
+  moderated_at  TIMESTAMPTZ,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX review_status_idx ON review (status);
+
+-- -------------------------------------------------------------
+-- Opening hours (shown in the footer, edited by employees)
+-- -------------------------------------------------------------
+
+CREATE TABLE opening_hours (
+  day_of_week  SMALLINT PRIMARY KEY CHECK (day_of_week BETWEEN 1 AND 7), -- 1 = Monday
+  open_time    TIME,
+  close_time   TIME,
+  is_closed    BOOLEAN  NOT NULL DEFAULT FALSE,
+  CONSTRAINT opening_hours_times_check CHECK (
+    is_closed
+    OR (open_time IS NOT NULL AND close_time IS NOT NULL AND open_time < close_time)
+  )
+);
+
 COMMIT;
