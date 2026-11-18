@@ -154,4 +154,126 @@ SELECT m.menu_id, '/img/menus/couscous.jpg', m.title || ' — photo ' || g.n, g.
 FROM menu m
 CROSS JOIN generate_series(1, 2) AS g (n);
 
+-- -------------------------------------------------------------
+-- Demo accounts (employee + customers)
+-- Passwords (bcrypt, cost 10):
+--   employee : julie.employe@vitegourmand.fr / Employe#2026!
+--   users    : marie.dupont@example.com, thomas.martin@example.com / Client#2026!
+-- -------------------------------------------------------------
+
+INSERT INTO app_user (role_id, email, password_hash, last_name, first_name, phone, address, postcode, city, gdpr_consent_at)
+SELECT r.role_id, v.email, v.password_hash, v.last_name, v.first_name, v.phone, v.address, v.postcode, v.city, now()
+FROM (VALUES
+  ('employee', 'julie.employe@vitegourmand.fr',
+   '$2b$10$s8tpjrO7FY5Aaz5zi9.OCeArz14wlTtayMJPvk2AHXQPpdbnJRoZy',
+   'Martin', 'Julie', '0612345678', '8 rue Sainte-Catherine', '33000', 'Bordeaux'),
+  ('user', 'marie.dupont@example.com',
+   '$2b$10$okd5be.d6U2hHOyVRKZEVumHv/6ZmXOWkiXb5mFHwy8FeIrZlFBIe',
+   'Dupont', 'Marie', '0687654321', '25 cours de l''Intendance', '33000', 'Bordeaux'),
+  ('user', 'thomas.martin@example.com',
+   '$2b$10$okd5be.d6U2hHOyVRKZEVumHv/6ZmXOWkiXb5mFHwy8FeIrZlFBIe',
+   'Martin', 'Thomas', '0711223344', '12 avenue de la Marne', '33700', 'Mérignac')
+) AS v (role, email, password_hash, last_name, first_name, phone, address, postcode, city)
+JOIN role r ON r.label = v.role;
+
+-- -------------------------------------------------------------
+-- Demo orders (one per main status)
+-- Prices follow the rules of front-end/src/utils/pricing.js
+-- -------------------------------------------------------------
+
+INSERT INTO customer_order (
+  order_number, user_id, menu_id, people,
+  event_address, event_postcode, event_city, event_date, event_time, delivery_km,
+  menu_price, discount, delivery_price, total_price, status, equipment_loan, created_at
+)
+SELECT v.order_number, u.user_id, m.menu_id, v.people,
+       v.address, v.postcode, v.city, v.event_date, v.event_time, v.km,
+       v.menu_price, v.discount, v.delivery_price, v.menu_price - v.discount + v.delivery_price,
+       v.status, v.equipment_loan, v.created_at
+FROM (VALUES
+  -- 6 people, Bordeaux: 180.00, no discount, free delivery
+  ('VG-2026-0001', 'marie.dupont@example.com', 'Menu de Noël', 6,
+   '25 cours de l''Intendance', '33000', 'Bordeaux', DATE '2026-10-10', TIME '19:00', 0.0,
+   180.00, 0.00, 0.00, 'completed', FALSE, TIMESTAMPTZ '2026-09-20 10:15+02'),
+  -- 4 people, Bordeaux: 4 x 22.50
+  ('VG-2026-0002', 'thomas.martin@example.com', 'Menu Classique', 4,
+   '3 place de la Bourse', '33000', 'Bordeaux', DATE '2026-10-18', TIME '12:30', 0.0,
+   90.00, 0.00, 0.00, 'completed', FALSE, TIMESTAMPTZ '2026-10-12 18:40+02'),
+  -- 8 people (>= 2 + 5): 180.00 - 10 %, Mérignac 5 km: 5 + 0.59 x 5 = 7.95
+  ('VG-2026-0003', 'marie.dupont@example.com', 'Menu Classique', 8,
+   '12 avenue de la Marne', '33700', 'Mérignac', DATE '2026-11-08', TIME '20:00', 5.0,
+   180.00, 18.00, 7.95, 'completed', FALSE, TIMESTAMPTZ '2026-11-01 09:05+01'),
+  -- 25 people (>= 20 + 5): 625.00 - 10 %, Pessac 8.2 km: 5 + 0.59 x 8.2 = 9.84, equipment lent
+  ('VG-2026-0004', 'thomas.martin@example.com', 'Menu Événement', 25,
+   '1 avenue Pey Berland', '33600', 'Pessac', DATE '2026-11-14', TIME '18:00', 8.2,
+   625.00, 62.50, 9.84, 'awaiting_equipment_return', TRUE, TIMESTAMPTZ '2026-10-20 14:30+02'),
+  ('VG-2026-0005', 'marie.dupont@example.com', 'Menu Végétarien', 2,
+   '25 cours de l''Intendance', '33000', 'Bordeaux', DATE '2026-11-30', TIME '19:30', 0.0,
+   40.00, 0.00, 0.00, 'cancelled', FALSE, TIMESTAMPTZ '2026-11-15 11:00+01'),
+  ('VG-2026-0006', 'thomas.martin@example.com', 'Menu de Pâques', 4,
+   '12 avenue de la Marne', '33700', 'Mérignac', DATE '2026-12-20', TIME '12:00', 5.0,
+   110.00, 0.00, 7.95, 'accepted', FALSE, TIMESTAMPTZ '2026-11-16 16:20+01'),
+  ('VG-2026-0007', 'marie.dupont@example.com', 'Menu de Noël', 10,
+   '25 cours de l''Intendance', '33000', 'Bordeaux', DATE '2026-12-24', TIME '19:00', 0.0,
+   300.00, 0.00, 0.00, 'pending', FALSE, TIMESTAMPTZ '2026-11-17 21:45+01')
+) AS v (order_number, email, menu, people, address, postcode, city, event_date, event_time, km,
+        menu_price, discount, delivery_price, status, equipment_loan, created_at)
+JOIN app_user u ON u.email = v.email
+JOIN menu m ON m.title = v.menu
+ORDER BY v.order_number;
+
+-- Status history (date/time of every change)
+INSERT INTO order_status_history (order_id, status, changed_at, changed_by, contact_method, reason)
+SELECT o.order_id, v.status, v.changed_at, e.user_id, v.contact_method, v.reason
+FROM (VALUES
+  ('VG-2026-0001', 'pending',    TIMESTAMPTZ '2026-09-20 10:15+02', NULL, NULL::varchar, NULL),
+  ('VG-2026-0001', 'accepted',   TIMESTAMPTZ '2026-09-21 09:00+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0001', 'preparing',  TIMESTAMPTZ '2026-10-10 08:00+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0001', 'delivering', TIMESTAMPTZ '2026-10-10 17:30+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0001', 'delivered',  TIMESTAMPTZ '2026-10-10 18:45+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0001', 'completed',  TIMESTAMPTZ '2026-10-11 10:00+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0002', 'pending',    TIMESTAMPTZ '2026-10-12 18:40+02', NULL, NULL, NULL),
+  ('VG-2026-0002', 'accepted',   TIMESTAMPTZ '2026-10-13 09:10+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0002', 'delivered',  TIMESTAMPTZ '2026-10-18 12:20+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0002', 'completed',  TIMESTAMPTZ '2026-10-19 09:00+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0003', 'pending',    TIMESTAMPTZ '2026-11-01 09:05+01', NULL, NULL, NULL),
+  ('VG-2026-0003', 'accepted',   TIMESTAMPTZ '2026-11-02 10:00+01', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0003', 'delivered',  TIMESTAMPTZ '2026-11-08 19:40+01', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0003', 'completed',  TIMESTAMPTZ '2026-11-09 09:00+01', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0004', 'pending',    TIMESTAMPTZ '2026-10-20 14:30+02', NULL, NULL, NULL),
+  ('VG-2026-0004', 'accepted',   TIMESTAMPTZ '2026-10-21 09:30+02', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0004', 'preparing',  TIMESTAMPTZ '2026-11-14 08:00+01', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0004', 'delivering', TIMESTAMPTZ '2026-11-14 16:30+01', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0004', 'delivered',  TIMESTAMPTZ '2026-11-14 17:40+01', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0004', 'awaiting_equipment_return', TIMESTAMPTZ '2026-11-15 10:00+01', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0005', 'pending',    TIMESTAMPTZ '2026-11-15 11:00+01', NULL, NULL, NULL),
+  ('VG-2026-0005', 'cancelled',  TIMESTAMPTZ '2026-11-16 14:05+01', 'julie.employe@vitegourmand.fr', 'phone',
+   'Cliente jointe par téléphone : événement reporté, annulation à sa demande.'),
+  ('VG-2026-0006', 'pending',    TIMESTAMPTZ '2026-11-16 16:20+01', NULL, NULL, NULL),
+  ('VG-2026-0006', 'accepted',   TIMESTAMPTZ '2026-11-17 09:15+01', 'julie.employe@vitegourmand.fr', NULL, NULL),
+  ('VG-2026-0007', 'pending',    TIMESTAMPTZ '2026-11-17 21:45+01', NULL, NULL, NULL)
+) AS v (order_number, status, changed_at, employee_email, contact_method, reason)
+JOIN customer_order o ON o.order_number = v.order_number
+LEFT JOIN app_user e ON e.email = v.employee_email;
+
+-- -------------------------------------------------------------
+-- Reviews (only on completed orders)
+-- -------------------------------------------------------------
+
+INSERT INTO review (order_id, user_id, rating, comment, status, moderated_by, moderated_at, created_at)
+SELECT o.order_id, o.user_id, v.rating, v.comment, v.status,
+       CASE WHEN v.status <> 'pending' THEN e.user_id END,
+       CASE WHEN v.status <> 'pending' THEN v.created_at + INTERVAL '1 day' END,
+       v.created_at
+FROM (VALUES
+  ('VG-2026-0001', 5, 'Un Noël parfait : tout était délicieux et livré à l''heure. Merci Julie et José !',
+   'approved', TIMESTAMPTZ '2026-10-12 20:00+02'),
+  ('VG-2026-0002', 4, 'Très bon couscous, portions généreuses. Je recommande.',
+   'approved', TIMESTAMPTZ '2026-10-20 12:00+02'),
+  ('VG-2026-0003', 5, 'Repas d''anniversaire réussi, les invités ont adoré la tarte aux pommes.',
+   'pending', TIMESTAMPTZ '2026-11-10 18:30+01')
+) AS v (order_number, rating, comment, status, created_at)
+JOIN customer_order o ON o.order_number = v.order_number
+CROSS JOIN (SELECT user_id FROM app_user WHERE email = 'julie.employe@vitegourmand.fr') e;
+
 COMMIT;
