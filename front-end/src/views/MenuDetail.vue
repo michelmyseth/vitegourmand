@@ -116,6 +116,7 @@ const loading = ref(true)
 const error = ref('')
 const current = ref(0)
 const askLogin = ref(false)
+const staffMessage = ref('')
 
 async function load(id) {
   loading.value = true
@@ -142,7 +143,6 @@ const courses = [
 ]
 
 const orderPath = computed(() => `/order?menu=${menu.value.id}`)
-const staffMessage = ref('')
 
 // KAN-46: logged-in customer -> order page with this menu pre-selected;
 // visitor -> asked to log in or sign up, then sent back to the order page
